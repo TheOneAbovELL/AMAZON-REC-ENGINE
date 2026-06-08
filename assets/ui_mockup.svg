@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600">
+  <style>
+    .bg { fill: #ffffff; }
+    .panel { fill:#f8fafc; stroke:#cbd5e1; stroke-width:1; }
+    .card { fill:#ffffff; stroke:#e2e8f0; stroke-width:1; rx:6; }
+    .title { font: 700 18px 'Segoe UI', Tahoma, sans-serif; fill:#0f172a; }
+    .label { font: 400 13px 'Segoe UI', Tahoma, sans-serif; fill:#0f172a; }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="1000" height="600" />
+
+  <!-- Sidebar -->
+  <rect class="panel" x="20" y="20" width="220" height="560" rx="8" />
+  <text class="title" x="130" y="55" text-anchor="middle">Controls</text>
+  <text class="label" x="40" y="95">User Profile</text>
+  <rect class="card" x="30" y="105" width="200" height="36" />
+  <text class="label" x="130" y="130" text-anchor="middle">AI Student ▼</text>
+  <text class="label" x="40" y="160">Query</text>
+  <rect class="card" x="30" y="170" width="200" height="36" />
+  <text class="label" x="130" y="195" text-anchor="middle">Need laptop for AI under 90k</text>
+  <rect class="card" x="70" y="220" width="120" height="36" />
+  <text class="label" x="130" y="244" text-anchor="middle">Recommend</text>
+
+  <!-- Main content -->
+  <rect x="260" y="20" width="720" height="560" fill="#f1f5f9" rx="8" />
+  <text class="title" x="620" y="55" text-anchor="middle">Recommendations</text>
+
+  <!-- Cards -->
+  <rect class="card" x="280" y="90" width="640" height="90" />
+  <text class="title" x="320" y="120">1. Lenovo LOQ Gaming Laptop</text>
+  <text class="label" x="320" y="140">Price: ₹89,000 • Rating: 4.6 • Score: 0.7885</text>
+  <text class="label" x="320" y="160">Explanation: RTX 4060, 16GB RAM — strong GPU suitable for AI.</text>
+
+  <rect class="card" x="280" y="200" width="640" height="90" />
+  <text class="title" x="320" y="230">2. ASUS Zephyrus Deep Learning Laptop</text>
+  <text class="label" x="320" y="250">Price: ₹150,000 • Rating: 4.8 • Score: 0.6957</text>
+  <text class="label" x="320" y="270">Explanation: RTX 4080, 32GB RAM — excellent for deep learning (over budget).</text>
+
+  <rect class="card" x="280" y="310" width="640" height="90" />
+  <text class="title" x="320" y="340">3. HP Pavilion Gaming Laptop</text>
+  <text class="label" x="320" y="360">Price: ₹78,000 • Rating: 4.3 • Score: 0.6636</text>
+  <text class="label" x="320" y="380">Explanation: GTX 1650, 16GB RAM — budget-friendly gaming option.</text>
+
+</svg>

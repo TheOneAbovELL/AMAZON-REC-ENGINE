@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env
+
+# Data
+/data/raw/
+/data/processed/
+
+# Models
+/models/
+
+data/meta_Electronics.json
+
+# Jupyter notebooks
+.ipynb_checkpoints/

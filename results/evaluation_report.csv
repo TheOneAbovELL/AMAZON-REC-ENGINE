@@ -1,0 +1,4 @@
+model,precision_at_5,recall_at_5,ndcg_at_5
+Baseline Search,0.24,1.0,1.0
+Semantic Search,0.24,1.0,0.926
+Personalized Search,0.24,1.0,0.91

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <style>
+    .box { fill:#f8fafc; stroke:#334155; stroke-width:2; rx:8; }
+    .title { font: 600 14px 'Segoe UI', Tahoma, sans-serif; fill:#0f172a; }
+    .label { font: 400 12px 'Segoe UI', Tahoma, sans-serif; fill:#0f172a; }
+    .arrow { stroke:#0f172a; stroke-width:2; fill:none; marker-end:url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0f172a" />
+    </marker>
+  </defs>
+
+  <!-- Boxes -->
+  <rect class="box" x="50" y="40" width="180" height="50" />
+  <text class="title" x="140" y="70" text-anchor="middle">User Query</text>
+
+  <rect class="box" x="50" y="120" width="220" height="60" />
+  <text class="title" x="160" y="145" text-anchor="middle">Query Understanding</text>
+  <text class="label" x="160" y="160" text-anchor="middle">(parsing, budget extraction)</text>
+
+  <rect class="box" x="320" y="40" width="220" height="60" />
+  <text class="title" x="430" y="70" text-anchor="middle">Sentence Transformer</text>
+  <text class="label" x="430" y="85" text-anchor="middle">(text → embedding)</text>
+
+  <rect class="box" x="320" y="140" width="220" height="60" />
+  <text class="title" x="430" y="170" text-anchor="middle">FAISS Vector Search</text>
+  <text class="label" x="430" y="185" text-anchor="middle">(approx. NN retrieval)</text>
+
+  <rect class="box" x="620" y="40" width="220" height="60" />
+  <text class="title" x="730" y="70" text-anchor="middle">Top 50 Candidates</text>
+
+  <rect class="box" x="320" y="260" width="220" height="60" />
+  <text class="title" x="430" y="290" text-anchor="middle">Ranking Engine</text>
+  <text class="label" x="430" y="305" text-anchor="middle">(similarity, rating, popularity, budget, business_score)</text>
+
+  <rect class="box" x="620" y="140" width="220" height="60" />
+  <text class="title" x="730" y="170" text-anchor="middle">Personalization Layer</text>
+  <text class="label" x="730" y="185" text-anchor="middle">(user boosts)</text>
+
+  <rect class="box" x="320" y="360" width="520" height="70" />
+  <text class="title" x="580" y="400" text-anchor="middle">Gemini Explanation Engine</text>
+  <text class="label" x="580" y="415" text-anchor="middle">(LLM-based explanation & rationale)</text>
+
+  <rect class="box" x="320" y="460" width="220" height="50" />
+  <text class="title" x="430" y="490" text-anchor="middle">Final Recommendations</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M140 90 L140 120" />
+  <path class="arrow" d="M270 120 L320 120" />
+  <path class="arrow" d="M540 100 L620 100" />
+  <path class="arrow" d="M430 200 L430 260" />
+  <path class="arrow" d="M540 200 L620 170" />
+  <path class="arrow" d="M730 200 L730 260" />
+  <path class="arrow" d="M540 320 L540 360" />
+  <path class="arrow" d="M540 430 L430 430" />
+  <path class="arrow" d="M430 430 L430 460" />
+
+</svg>

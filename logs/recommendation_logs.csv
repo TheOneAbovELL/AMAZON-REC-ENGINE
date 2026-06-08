@@ -1,0 +1,6 @@
+timestamp,query,user_profile,retrieved_products,final_product,score
+2026-06-08T19:22:32.514004,gaming laptop under 90000,gaming,"[""Lenovo LOQ Gaming Laptop"", ""HP Pavilion Gaming Laptop"", ""ASUS Zephyrus Deep Learning Laptop"", ""ASUS VivoBook 15"", ""Dell UltraSharp Monitor""]",Lenovo LOQ Gaming Laptop,0.7885
+2026-06-08T19:22:32.556992,deep learning workstation,ai_student,"[""ASUS Zephyrus Deep Learning Laptop"", ""Lenovo LOQ Gaming Laptop"", ""Dell UltraSharp Monitor"", ""Sony Wireless Earbuds"", ""Logitech Mechanical Keyboard""]",ASUS Zephyrus Deep Learning Laptop,0.6764
+2026-06-08T19:22:32.598360,wireless gaming mouse,gaming,"[""Lenovo LOQ Gaming Laptop"", ""ASUS Zephyrus Deep Learning Laptop"", ""Sony Wireless Earbuds"", ""Logitech Mechanical Keyboard"", ""Dell UltraSharp Monitor""]",Lenovo LOQ Gaming Laptop,0.6409
+2026-06-08T19:22:32.636089,budget mechanical keyboard,general,"[""Logitech Mechanical Keyboard"", ""ASUS Zephyrus Deep Learning Laptop"", ""Lenovo LOQ Gaming Laptop"", ""Sony Wireless Earbuds"", ""Dell UltraSharp Monitor""]",Logitech Mechanical Keyboard,0.5607
+2026-06-08T19:22:32.683009,monitor for coding,general,"[""ASUS Zephyrus Deep Learning Laptop"", ""Dell UltraSharp Monitor"", ""Lenovo LOQ Gaming Laptop"", ""Sony Wireless Earbuds"", ""Logitech Mechanical Keyboard""]",ASUS Zephyrus Deep Learning Laptop,0.5262
