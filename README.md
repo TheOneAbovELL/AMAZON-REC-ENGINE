@@ -1,184 +1,530 @@
 # Amazon-Style Personalized Product Recommendation Engine
 
-## Overview
+An end-to-end Machine Learning Recommendation System inspired by modern e-commerce platforms such as Amazon. This project combines Semantic Search, Vector Retrieval, Business-Aware Ranking, Personalization, Explainable AI, and an Interactive Analytics Dashboard to deliver highly relevant product recommendations.
 
-This repository demonstrates an Amazon-style recommendation system with a modern, reviewer-friendly architecture.
+The system demonstrates a production-style recommendation pipeline using Sentence Transformers and FAISS for semantic retrieval, followed by a multi-stage ranking and personalization framework.
 
-The pipeline includes:
-- semantic search using sentence-transformer embeddings
-- FAISS retrieval for efficient candidate lookup
-- business-aware ranking and personalization
-- Gemini-style text explanations
-- reproducible query tests
-- Streamlit frontend with analytics
-- recommendation logging for debugging
+---
 
-## Features
+# Project Overview
 
-- Semantic Search
-- FAISS Retrieval
-- Ranking Engine
-- Personalization
-- Evaluation Metrics
-- Explainability
-- Streamlit UI
-- Analytics Charts
-- Logging
+Traditional keyword-based search systems often fail to understand user intent. This project addresses that limitation by leveraging transformer-based semantic embeddings and vector similarity search.
 
-## Architecture
+The recommendation engine:
 
-```
-Query
- ↓
-Embedding
- ↓
-FAISS
- ↓
-Ranking
- ↓
-Personalization
- ↓
-Gemini Explanation
- ↓
-Recommendation
-```
+* Understands semantic meaning of user queries
+* Retrieves relevant products using vector search
+* Applies business-aware ranking signals
+* Personalizes recommendations based on user profiles
+* Generates human-readable explanations
+* Provides interactive visualization and analytics
 
-## Architecture Diagram
+---
 
-```
+# Key Features
+
+## Semantic Search
+
+* Sentence Transformer embeddings
+* Context-aware retrieval
+* Better than simple keyword matching
+
+## Vector Search
+
+* FAISS IndexFlatL2
+* Efficient nearest-neighbor search
+* Fast Top-K candidate retrieval
+
+## Multi-Signal Ranking Engine
+
+Products are ranked using multiple signals:
+
+* Semantic Similarity
+* Product Rating
+* Popularity
+* Budget Compatibility
+* Business Quality Score
+
+## Personalization Layer
+
+Supports profile-aware recommendation boosting:
+
+* Gaming Users
+* Students
+* AI/ML Students
+
+## Explainable AI
+
+Every recommendation includes reasoning based on:
+
+* Query relevance
+* Rating quality
+* Hardware suitability
+* User preferences
+* Ranking signals
+
+## Interactive Dashboard
+
+Streamlit-based interface featuring:
+
+* Product Search
+* User Profile Selection
+* Recommendation Visualization
+* Analytics Dashboard
+* Recommendation Explanations
+
+## Evaluation Framework
+
+Implemented evaluation metrics:
+
+* Precision@K
+* Recall@K
+* NDCG@K
+
+---
+
+# System Architecture
+
+![Architecture Diagram](assets/system_architecture.png)
+
+## Recommendation Pipeline
+
+```text
 User Query
-	│
-	▼
-Query Understanding
-	│
-	▼
+      ↓
 Sentence Transformer
-	│
-	▼
-FAISS Vector Search
-	│
-	▼
-Top 50 Candidates
-	│
-	▼
-Ranking Engine (multi-signal)
-	│
-	▼
-Personalization Layer
-	│
-	▼
-Gemini Explanation Engine
-	│
-	▼
-Final Recommendations
+(all-MiniLM-L6-v2)
+Embedding Generation
+      ↓
+FAISS (IndexFlatL2)
+Semantic Retrieval
+      ↓
+Top-K Candidate Products
+      ↓
+Ranking Engine
+• Similarity
+• Rating
+• Popularity
+• Budget
+• Business Score
+      ↓
+Personalization
+Profile-Based Boosting
+      ↓
+Explanation Layer
+      ↓
+Streamlit Dashboard
+Interactive UI
 ```
 
-![Architecture Diagram](assets/architecture.svg)
+---
 
-## Screenshots / Mockups
+# Technology Stack
 
-Below are mockups illustrating the Streamlit UI and recommendation cards. Replace these with real screenshots by saving images into `assets/screenshots/`.
+## Machine Learning
 
-![Streamlit UI Mockup](assets/ui_mockup.svg)
+* Sentence Transformers
+* Hugging Face Transformers
+* NumPy
+* Pandas
 
-How to capture and add real screenshots:
+## Vector Retrieval
 
-1. Start the app locally:
+* FAISS
+* Semantic Search
+* Dense Vector Embeddings
+
+## Backend
+
+* Python
+* Modular Recommendation Engine
+
+## Frontend
+
+* Streamlit
+
+## Analytics
+
+* Matplotlib
+* Seaborn
+
+## Testing
+
+* Unittest
+
+---
+
+# Project Workflow
+
+## Step 1: Data Processing
+
+Raw product and review data are cleaned and preprocessed.
+
+Tasks:
+
+* Missing value handling
+* Duplicate removal
+* Product aggregation
+* Feature engineering
+
+---
+
+## Step 2: Text Representation
+
+Product information is converted into semantic embeddings using:
+
+```python
+all-MiniLM-L6-v2
+```
+
+Embedding Dimension:
+
+```text
+384
+```
+
+---
+
+## Step 3: Vector Indexing
+
+Embeddings are stored inside a FAISS vector index.
+
+Benefits:
+
+* Fast retrieval
+* Scalable similarity search
+* Efficient nearest-neighbor lookup
+
+---
+
+## Step 4: Candidate Retrieval
+
+User queries are embedded and matched against product vectors.
+
+Output:
+
+```text
+Top-K Candidate Products
+```
+
+---
+
+## Step 5: Ranking Engine
+
+Candidate products are scored using:
+
+```text
+Final Score =
+0.35 × Similarity
++ 0.25 × Rating
++ 0.15 × Popularity
++ 0.10 × Budget Match
++ 0.05 × Business Score
+```
+
+---
+
+## Step 6: Personalization
+
+Profile-specific boosts are applied.
+
+Examples:
+
+### Gaming User
+
+Boosts:
+
+* Gaming
+* RTX
+* Graphics
+* ASUS
+* Lenovo
+
+### AI Student
+
+Boosts:
+
+* GPU
+* Machine Learning
+* Deep Learning
+* High RAM
+
+### Student
+
+Boosts:
+
+* Affordable
+* Lightweight
+* Battery Life
+
+---
+
+## Step 7: Explainability
+
+Human-readable explanations are generated describing:
+
+* Why the product was retrieved
+* Ranking factors
+* User-profile alignment
+* Hardware suitability
+
+---
+
+# Application Screenshots
+
+## Recommendation Dashboard
+
+![Dashboard](assets/screenshots/dashboard.png)
+
+## Recommendation Results
+
+![Recommendations](assets/screenshots/recommendation_card.png)
+
+## Analytics Dashboard
+
+![Analytics](assets/screenshots/analytics.png)
+
+---
+
+# Example Query
+
+Input:
+
+```text
+Need laptop for AI under 90k
+```
+
+Output:
+
+```text
+1. ASUS Zephyrus Deep Learning Laptop
+2. Lenovo LOQ Gaming Laptop
+3. HP Pavilion Gaming Laptop
+```
+
+Each recommendation includes:
+
+* Product Name
+* Rating
+* Price
+* Recommendation Score
+* User Profile
+* Explanation
+
+---
+
+# Evaluation Metrics
+
+Implemented:
+
+| Metric      | Description                          |
+| ----------- | ------------------------------------ |
+| Precision@K | Relevant recommendations among top K |
+| Recall@K    | Coverage of relevant products        |
+| NDCG@K      | Ranking quality evaluation           |
+
+Evaluation results are stored in:
+
+```text
+results/evaluation_report.csv
+```
+
+---
+
+# Dataset
+
+The project supports:
+
+### Demonstration Dataset
+
+Used for:
+
+* Testing
+* Reproducibility
+* Streamlit UI Demonstration
+
+### Real Amazon Dataset Support
+
+Pipeline supports:
+
+* Product metadata
+* Product reviews
+* Product aggregation
+* Embedding generation
+* Large-scale vector indexing
+
+---
+
+# Project Structure
+
+```text
+amazon-rec-engine/
+│
+├── analytics/
+├── assets/
+│   ├── system_architecture.png
+│   └── screenshots/
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── logs/
+├── models/
+├── results/
+├── src/
+├── tests/
+│
+├── app.py
+├── run_pipeline.py
+├── requirements.txt
+├── README.md
+└── LICENSE
+```
+
+---
+
+# Installation
+
+Clone the repository:
 
 ```bash
-streamlit run app.py
+git clone <repository-url>
+cd amazon-rec-engine
 ```
 
-2. Open the app in your browser (default: http://localhost:8501), use your OS screenshot tool (Snipping Tool on Windows, or Print Screen), and save images to `assets/screenshots/`.
-
-3. Commit and push the screenshots to your repo so reviewers see real UI images.
-
-## Evaluation Summary
-
-Key metrics are computed over the sample dataset. See `results/evaluation_report.csv` for the full CSV.
-
-| Model | Precision@5 | Recall@5 | NDCG@5 |
-|---|---:|---:|---:|
-| Baseline Search | 0.24 | 1.00 | 1.00 |
-| Semantic Search | 0.24 | 1.00 | 0.926 |
-| Personalized Search | 0.24 | 1.00 | 0.91 |
-
-## Dataset Summary
-
-- Products: 8
-- Unique Categories: 5
-- Unique Brands (approx): 6
-- Average Rating: 4.45
-- Embedding Dimension: 384
-- Vector Search Engine: FAISS (IndexFlatL2)
-
-## Future Work (short note for reviewers)
-
-Replace the current rule-based ranking with a supervised learning-to-rank model (e.g., LambdaMART, LightGBM Ranker, or XGBoost Ranker) trained on user interaction signals to learn an optimal combination of features and improve final ranking quality.
-
-## Project Structure
-
-- `data/` — dataset inputs and raw files
-- `models/` — generated embedding and FAISS artifacts
-- `results/` — evaluation output and reports
-- `logs/` — recommendation logs
-- `analytics/` — chart helper modules
-- `src/` — pipeline modules and engine code
-- `tests/` — reproducibility test queries and unit tests
-- `app.py` — Streamlit interface
-- `run_pipeline.py` — pipeline validation runner
-
-## Getting Started
-
-1. Activate your Python environment.
-2. Install dependencies:
+Create virtual environment:
 
 ```bash
-python -m pip install -r requirements.txt
+python -m venv venv
 ```
 
-3. Run the recommendation pipeline:
+Activate environment:
+
+### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+### Linux / Mac
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Running the Project
+
+Run the recommendation pipeline:
 
 ```bash
 python run_pipeline.py
 ```
 
-4. Launch the Streamlit UI:
+Launch Streamlit Dashboard:
 
 ```bash
 streamlit run app.py
 ```
 
-## Test Queries
+Run Unit Tests:
 
-A reproducible set of queries is stored in `tests/test_queries.txt`.
+```bash
+python -m unittest tests.test_recommendations
+```
 
-## Results and Evaluation
+---
 
-A sample evaluation report is available at `results/evaluation_report.csv`, comparing:
-- Baseline Search
-- Semantic Search
-- Personalized Search
+# Logging
 
-## Logging
+Recommendation requests are automatically logged.
 
-The app logs recommendation requests to `logs/recommendation_logs.csv` with:
-- timestamp
-- query
-- user profile
-- retrieved products
-- final product
-- score
+Location:
 
-## Future Work
+```text
+logs/recommendation_logs.csv
+```
 
-- Learning-to-Rank
-- Collaborative Filtering
-- Real User Feedback
-- Click Prediction
-- Hybrid Retrieval
-- Multimodal Search
+Captured fields:
 
-## License
+* Timestamp
+* Query
+* User Profile
+* Retrieved Products
+* Final Product
+* Recommendation Score
+
+---
+
+# Future Improvements
+
+## Learning-to-Rank
+
+Replace rule-based ranking with:
+
+* LambdaMART
+* XGBoost Ranker
+* LightGBM Ranker
+
+## Hybrid Recommendation Systems
+
+Combine:
+
+* Content-Based Filtering
+* Collaborative Filtering
+
+## Real-Time Feedback Learning
+
+Incorporate:
+
+* Click Signals
+* Purchase Signals
+* User Interaction Data
+
+## Multimodal Search
+
+Support:
+
+* Image Search
+* Text Search
+* Product Metadata
+
+## Large-Scale Deployment
+
+Potential deployment using:
+
+* FastAPI
+* Docker
+* AWS
+* Kubernetes
+
+---
+
+# License
 
 This project is released under the MIT License.
+
+---
+
+# Author
+
+Omjee R Giri
+
+B.Tech Artificial Intelligence & Machine Learning
+BIT Mesra
+
+Interests:
+
+* Machine Learning
+* Recommendation Systems
+* Quantitative Finance
+* AI Engineering
+* Data Science
