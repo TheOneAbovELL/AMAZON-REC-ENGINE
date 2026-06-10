@@ -1,60 +1,154 @@
 """Ranking utilities for personalized product recommendations."""
 
-TRUSTED_BRANDS = {"lenovo", "asus", "dell", "hp", "logitech", "sony", "jbl"}
+TRUSTED_BRANDS = {
+    "lenovo",
+    "asus",
+    "dell",
+    "hp",
+    "logitech",
+    "sony",
+    "jbl",
+    "acer",
+    "msi",
+    "samsung",
+    "lg",
+}
 
 
 def compute_business_score(product, category_score=0.0):
+
     score = 0.0
-    in_stock = product.get("in_stock")
-    if isinstance(in_stock, bool) and in_stock:
-        score += 0.4
-    elif isinstance(in_stock, str) and in_stock.lower() in {"yes", "true", "available", "in stock", "instock"}:
-        score += 0.4
 
-    rating = float(product.get("rating", 0.0) or 0.0)
-    if rating >= 4.3:
-        score += 0.3
+    # --------------------------
+    # Rating Quality
+    # --------------------------
 
-    popularity = float(product.get("popularity", 0.0) or 0.0)
-    if popularity >= 500:
-        score += 0.2
+    rating = float(
+        product.get("rating", 0.0) or 0.0
+    )
 
-    title = str(product.get("title", "")).lower()
-    brand = str(product.get("brand", "")).lower()
-    text = f"{brand} {title}"
-    if any(brand_name in text for brand_name in TRUSTED_BRANDS):
-        score += 0.1
+    if rating >= 4.5:
+        score += 0.40
 
-    score += 0.1 * float(category_score or 0.0)
+    elif rating >= 4.0:
+        score += 0.25
+
+    # --------------------------
+    # Popularity
+    # --------------------------
+
+    popularity = float(
+        product.get("popularity", 0.0) or 0.0
+    )
+
+    if popularity >= 10000:
+        score += 0.30
+
+    elif popularity >= 1000:
+        score += 0.20
+
+    elif popularity >= 100:
+        score += 0.10
+
+    # --------------------------
+    # Trusted Brand
+    # --------------------------
+
+    product_name = str(
+        product.get("name", "")
+    ).lower()
+
+    if any(
+        brand in product_name
+        for brand in TRUSTED_BRANDS
+    ):
+        score += 0.20
+
+    # --------------------------
+    # Category Match
+    # --------------------------
+
+    score += (
+        0.10 *
+        float(category_score or 0.0)
+    )
+
     return min(score, 1.0)
 
 
-def compute_score(similarity, rating, popularity, budget_score=0.0, business_score=0.0):
-    """Compute a final ranking score with business-aware normalization."""
-    normalized_rating = min(max(float(rating or 0.0) / 5.0, 0.0), 1.0)
-    normalized_popularity = min(max(float(popularity or 0.0) / 1500.0, 0.0), 1.0)
+def compute_score(
+    similarity,
+    rating,
+    popularity,
+    budget_score=0.0,
+    business_score=0.0,
+):
+
+    rating_norm = min(
+        max(float(rating or 0.0) / 5.0, 0.0),
+        1.0,
+    )
+
+    popularity_norm = min(
+        float(popularity or 0.0) / 10000.0,
+        1.0,
+    )
+
     return (
-        0.35 * float(similarity or 0.0)
-        + 0.25 * normalized_rating
-        + 0.15 * normalized_popularity
+        0.45 * float(similarity or 0.0)
+        + 0.20 * rating_norm
+        + 0.15 * popularity_norm
         + 0.10 * float(budget_score or 0.0)
-        + 0.05 * float(business_score or 0.0)
+        + 0.10 * float(business_score or 0.0)
     )
 
 
 def rank_products(products):
-    """Rank products by computed score and business quality signals."""
-    max_popularity = max((float(product.get("popularity", 0.0) or 0.0) for product in products), default=1.0)
+
+    ranked_products = []
+
     for product in products:
-        popularity = float(product.get("popularity", 0.0) or 0.0)
-        product["popularity_norm"] = popularity / max_popularity if max_popularity else 0.0
-        business_score = compute_business_score(product, category_score=product.get("category_score", 0.0))
-        product["business_score"] = business_score
-        product["score"] = compute_score(
-            product.get("similarity", 0.0),
-            product.get("rating", 0.0),
-            popularity,
-            product.get("budget_score", 0.0),
-            business_score,
+
+        business_score = compute_business_score(
+            product,
+            category_score=product.get(
+                "category_score",
+                0.0,
+            ),
         )
-    return sorted(products, key=lambda x: x["score"], reverse=True)
+
+        product["business_score"] = (
+            business_score
+        )
+
+        final_score = compute_score(
+            similarity=product.get(
+                "similarity",
+                0.0,
+            ),
+            rating=product.get(
+                "rating",
+                0.0,
+            ),
+            popularity=product.get(
+                "popularity",
+                0.0,
+            ),
+            budget_score=product.get(
+                "budget_score",
+                0.0,
+            ),
+            business_score=business_score,
+        )
+
+        product["score"] = float(final_score)
+        product["final_score"] = float(final_score)
+
+        ranked_products.append(product)
+
+    ranked_products.sort(
+        key=lambda x: x["final_score"],
+        reverse=True,
+    )
+
+    return ranked_products

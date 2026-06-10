@@ -156,29 +156,115 @@ class RecommendationEngine:
     def recommend(
         self,
         query: str,
-        user_type: Optional[str] = None,
-        top_k: int = 10,
-        log_path: Optional[str] = "logs/recommendation_logs.csv",
-    ):
-        indices, similarities = self.retrieve_candidates(query, top_k=50)
-        ranked = self.rank_candidates(indices, similarities, query)
-        personalized = self.personalize(ranked, user_type)
-        recommended = personalized[:top_k]
+        user_type: str = "general",
+        top_k: int = 5,
+        log_path: str = None
+    ) -> list:
+        """
+        End-to-end recommendation pipeline:
+        Query → Embedding → FAISS Retrieval → Similarity Conversion 
+        → Business Ranking → Personalization → Final Recommendations
+        """
+        from src.embeddings import generate_embeddings
+        
+        query_vector = generate_embeddings([query])
+        search_k = min(top_k * 20, len(self.df))
+        
+        distances, indices = self.index.search(
+            np.array(query_vector).astype("float32"),
+            search_k,
+        )
+        
+        budget = extract_budget(query)
+        candidates = []
+        
+        for distance, idx in zip(distances[0], indices[0]):
+            if idx < 0 or idx >= len(self.df):
+                continue
+                
+            row = self.df.iloc[idx]
+            similarity = 1.0 / (1.0 + float(distance))
+            
+            try:
+                rating = float(row.get("rating", row.get("overall", 0)))
+            except Exception:
+                rating = 0.0
+                
+            try:
+                popularity = float(
+                    str(row.get("popularity", row.get("no_of_ratings", 0))).replace(",", "")
+                )
+            except Exception:
+                popularity = 0.0
 
+            price = parse_price(row.get("discount_price", row.get("price", None)))
+            category = f"{row.get('main_category', '')} {row.get('sub_category', '')}"
+
+            candidate = {
+                "index": int(idx),
+                # Product Fields
+                "name": str(row.get("name", "")),
+                "main_category": str(row.get("main_category", "")),
+                "sub_category": str(row.get("sub_category", "")),
+                "reviewText": str(row.get("reviewText", "")),
+                # Ranking Signals
+                "similarity": similarity,
+                "rating": rating,
+                "popularity": popularity,
+                "price": price,
+                "budget_score": compute_budget_score(price, budget),
+                "category_score": compute_category_score(query, category),
+            }
+            candidates.append(candidate)
+        
+        # 4. Apply Ranking Engine
+        ranked_products = rank_products(candidates)
+
+        # 5. Apply Personalization
+        ranked_products = personalize_recommendations(ranked_products, user_type)
+
+        # 6. Generate Explanations
+        final_results = []
+        for product in ranked_products[:top_k]:
+            try:
+                explanation = explain_recommendation(query, product)
+            except Exception:
+                explanation = (
+                    f"Recommended because it is relevant to '{query}' and ranks highly "
+                    f"according to our retrieval and ranking pipeline."
+                )
+
+            product["explanation"] = explanation
+            final_results.append(product)
+        # 7. Logging
         if log_path:
-            retrieved_titles = [product["title"] for product in ranked[:top_k]]
-            final_product = recommended[0]["title"] if recommended else ""
-            score = float(recommended[0].get("personalized_score", recommended[0].get("score", 0.0))) if recommended else 0.0
-            log_recommendation(
-                query=query,
-                user_profile=user_type or "general",
-                retrieved_products=retrieved_titles,
-                final_product=final_product,
-                score=score,
-                log_path=Path(log_path),
-            )
+            try:
+                top_product = final_results[0] if final_results else {}
+                log_recommendation(
+                    query=query,
+                    user_profile=user_type,
+                    retrieved_products=[p.get("name", "") for p in final_results],
+                    final_product=top_product.get("name", ""),
+                    score=top_product.get("personalized_score", top_product.get("final_score", 0.0)),
+                    log_path=Path(log_path),
+                )
+            except Exception:
+                pass
 
-        return recommended
+        return final_results
 
-    def explain(self, query: str, product, user_type: Optional[str] = None):
-        return explain_recommendation(query, product, user_type)
+
+    def explain(self, query: str, product: dict, user_type: str) -> str:
+        """Generates dynamic explanations using your active unified dataset layout."""
+        title = product.get("name", "Unknown Item")
+        price = product.get("discount_price", 0.0)
+        rating = product.get("rating", 0.0)
+        
+        explanation = (
+            f"Recommended product: {title}.\n"
+            f"Query context: '{query}' matches our vector index with a raw alignment score of {product.get('personalized_score', product.get('final_score', 0.0)):.4f}.\n"
+            f"Price: ₹{price:,.2f}.\n"
+            f"The item shows stable customer satisfaction with a rating of {rating}/5.\n"
+            f"Optimized ranking weights applied for the '{user_type}' user profile."
+        )
+        return explanation

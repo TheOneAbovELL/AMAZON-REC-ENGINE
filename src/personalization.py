@@ -24,6 +24,7 @@ def personalize_recommendations(products, user_type):
     for product in products:
         combined_text = product.get("combined_text", "")
         boost = personalization_boost(combined_text, user_type)
-        product["personalized_score"] = product.get("score", 0.0) + boost
+        base_score = product.get("final_score", product.get("score", 0.0))
+        product["personalized_score"] = float(base_score) + boost
         personalized.append(product)
     return sorted(personalized, key=lambda x: x["personalized_score"], reverse=True)
