@@ -106,23 +106,45 @@ def aggregate_product_reviews(
     return aggregated
 
 
-def create_combined_text(df: pd.DataFrame) -> pd.DataFrame:
-    """Build a single unified text field using the verified schema."""
+def create_combined_text(df):
     df = df.copy()
 
-    # Enforce string conversion and clean up nulls
-    name = df["name"].fillna("").astype(str)
-    main_cat = df["main_category"].fillna("").astype(str)
-    sub_cat = df["sub_category"].fillna("").astype(str)
-    review = df["reviewText"].fillna("").astype(str)
+    if "name" in df.columns:
+        name = df["name"].fillna("").astype(str)
+    else:
+        name = df.get("title", "").astype(str)
 
-    # Use an excerpt of the review text to avoid review dominance in embeddings.
-    review_excerpt = review.apply(
-        lambda text: " ".join(str(text).split()[:40])
-    )
+    if "main_category" in df.columns:
+        category = df["main_category"].fillna("").astype(str)
+    else:
+        category = df.get("category", "").astype(str)
+
+    if "sub_category" in df.columns:
+        subcategory = df["sub_category"].fillna("").astype(str)
+    else:
+        subcategory = ""
+
+    if "reviewText" in df.columns:
+        review = (
+            df["reviewText"]
+            .fillna("")
+            .astype(str)
+            .str[:300]
+        )
+    else:
+        review = (
+            df.get("description", "")
+            .astype(str)
+        )
 
     df["combined_text"] = (
-        name + " " + main_cat + " " + sub_cat + " " + review_excerpt
-    ).str.strip()
+        name
+        + " "
+        + category
+        + " "
+        + str(subcategory)
+        + " "
+        + review
+    )
 
     return df

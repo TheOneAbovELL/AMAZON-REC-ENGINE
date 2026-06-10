@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 from typing import Optional
 
+import pandas as pd
 import numpy as np
 
 from .data_loader import load_data
@@ -202,19 +203,51 @@ class RecommendationEngine:
 
             candidate = {
                 "index": int(idx),
-                # Product Fields
-                "name": str(row.get("name", "")),
+                # New schema
+                "name": str(
+                    row.get(
+                        "name",
+                        row.get(
+                            "title",
+                            "Unknown Product"
+                            )
+                        )
+                    ),
                 "main_category": str(row.get("main_category", "")),
                 "sub_category": str(row.get("sub_category", "")),
                 "reviewText": str(row.get("reviewText", "")),
-                # Ranking Signals
+
+                # Backward compatibility for tests
+                "title": str(
+                    row.get(
+                        "name",
+                        row.get(
+                            "title",
+                            "Unknown Product"
+                        )
+                    )
+                ),
+                "description": str(row.get("reviewText", "")),
+
+                "combined_text": str(
+                    row.get(
+                        "combined_text",
+                        (
+                            str(row.get("name", ""))
+                            + " "
+                            + str(row.get("reviewText", ""))
+                        )
+                    )
+                ),
+
+                # Ranking signals
                 "similarity": similarity,
                 "rating": rating,
                 "popularity": popularity,
                 "price": price,
                 "budget_score": compute_budget_score(price, budget),
                 "category_score": compute_category_score(query, category),
-            }
+                }
             candidates.append(candidate)
         
         # 4. Apply Ranking Engine

@@ -1,3 +1,4 @@
+from numpy.ma import product
 import streamlit as st
 from pathlib import Path
 
@@ -140,14 +141,30 @@ def main():
             if not recommendations:
                 st.warning("No recommendations could be generated for this query.")
             for idx, product in enumerate(recommendations, start=1):
-                with st.expander(f"{idx}. {product['title']}"):
-                    st.markdown(f"**Price:** ₹{product['price']}")
-                    st.markdown(f"**Rating:** {product['rating']}")
-                    st.markdown(f"**Score:** {product.get('personalized_score', product.get('score', 0.0)):.4f}")
-                    st.markdown(f"**Category:** {product.get('category', 'N/A')}" )
-                    explanation = engine.explain(query, product, user_profile)
-                    st.markdown(f"**Explanation:** {explanation}")
-
+                title = product.get(
+                    "title",
+                    product.get(
+                        "name",
+                        "Unknown Product"
+                        )
+                )
+                with st.expander(f"{idx}. {title}"):
+                    st.markdown(f"### {title}")
+                    st.write(f"⭐ Rating: {product.get('rating', 'N/A')}")
+                    st.write(f"💰 Price: ₹{product.get('price', 'N/A')}")
+                    st.write(
+                        f"🎯 Recommendation Score: "
+                        f"{product.get('personalized_score', product.get('score', 0)):.4f}"
+                        )
+                    st.write(f"👤 User Profile: {user_profile}")
+                    st.markdown("### Why Recommended?")
+                    st.write(
+                        product.get(
+                            "explanation",
+                            "Recommended because it is highly relevant to your query."
+                            )
+                        
+                        )
     with analytics_area:
         st.subheader("Analytics")
         st.pyplot(plot_category_distribution(engine.df))

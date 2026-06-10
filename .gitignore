@@ -19,3 +19,12 @@ data/meta_Electronics.json
 
 # Jupyter notebooks
 .ipynb_checkpoints/
+
+*.pyc
+
+models/*.npy
+models/*.index
+
+logs/recommendation_logs.csv
+
+.DS_Store
