@@ -517,14 +517,3 @@ This project is released under the MIT License.
 # Author
 
 Omjee R Giri
-
-B.Tech Artificial Intelligence & Machine Learning
-BIT Mesra
-
-Interests:
-
-* Machine Learning
-* Recommendation Systems
-* Quantitative Finance
-* AI Engineering
-* Data Science
