@@ -1,219 +1,230 @@
-# Amazon-Style Personalized Product Recommendation Engine
+<div align="center">
 
-An end-to-end Machine Learning Recommendation System inspired by modern e-commerce platforms such as Amazon. This project combines Semantic Search, Vector Retrieval, Business-Aware Ranking, Personalization, Explainable AI, and an Interactive Analytics Dashboard to deliver highly relevant product recommendations.
+# 🛒 Amazon-Style Personalized Product Recommendation Engine
 
-The system demonstrates a production-style recommendation pipeline using Sentence Transformers and FAISS for semantic retrieval, followed by a multi-stage ranking and personalization framework.
+### AI-Powered Semantic Search, Personalization & Product Intelligence Platform
+
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=24&pause=1000&center=true&vCenter=true&width=1100&lines=Semantic+Search+Powered+Recommendations;FAISS+Vector+Retrieval+Engine;Business-Aware+Ranking+System;Personalized+Product+Discovery;Explainable+AI+Recommendations;Production-Style+E-Commerce+ML+Pipeline" />
+
+<br>
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
+![FAISS](https://img.shields.io/badge/FAISS-Vector_Search-blue?style=for-the-badge)
+![Transformers](https://img.shields.io/badge/Transformers-HuggingFace-yellow?style=for-the-badge)
+![Sentence Transformers](https://img.shields.io/badge/Sentence_Transformers-Embeddings-success?style=for-the-badge)
+![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge\&logo=pandas\&logoColor=white)
+
+<br>
+
+![ML Pipeline](https://img.shields.io/badge/Architecture-Multi_Stage_ML_Pipeline-purple?style=flat-square)
+![Search](https://img.shields.io/badge/Search-Semantic_Search-success?style=flat-square)
+![Personalization](https://img.shields.io/badge/Personalization-Profile_Aware-blue?style=flat-square)
+![Explainability](https://img.shields.io/badge/XAI-Explainable_AI-orange?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=flat-square)
+
+</div>
 
 ---
 
-# Project Overview
+# 🎯 Vision
 
-Traditional keyword-based search systems often fail to understand user intent. This project addresses that limitation by leveraging transformer-based semantic embeddings and vector similarity search.
+Modern e-commerce platforms rely on intelligent recommendation systems to connect users with relevant products. Traditional keyword-based search systems often fail because they match words rather than meaning.
 
-The recommendation engine:
+This project addresses that challenge by combining:
 
-* Understands semantic meaning of user queries
-* Retrieves relevant products using vector search
-* Applies business-aware ranking signals
-* Personalizes recommendations based on user profiles
-* Generates human-readable explanations
-* Provides interactive visualization and analytics
+* 🔍 Semantic Search
+* 🧠 Transformer-Based Embeddings
+* ⚡ Vector Retrieval
+* 🎯 Business-Aware Ranking
+* 👤 Personalized Recommendations
+* 💡 Explainable AI
+* 📊 Interactive Analytics
+
+into a unified recommendation platform capable of delivering highly relevant product suggestions.
+
+The architecture is inspired by recommendation systems used by platforms such as:
+
+* Amazon
+* Flipkart
+* Walmart
+* Shopify
+* Alibaba
+
+while emphasizing transparency, modularity, and explainability.
 
 ---
 
-# Key Features
+# 🏛 Design Philosophy
 
-## Semantic Search
+The recommendation engine follows five core principles:
 
-* Sentence Transformer embeddings
-* Context-aware retrieval
-* Better than simple keyword matching
+### 1️⃣ Understand Meaning, Not Keywords
 
-## Vector Search
+Semantic embeddings enable the system to understand user intent beyond exact keyword matching.
 
-* FAISS IndexFlatL2
-* Efficient nearest-neighbor search
-* Fast Top-K candidate retrieval
+---
 
-## Multi-Signal Ranking Engine
+### 2️⃣ Retrieve Before Ranking
 
-Products are ranked using multiple signals:
+Recommendations are generated using a two-stage pipeline:
 
-* Semantic Similarity
-* Product Rating
+* Candidate Retrieval
+* Multi-Signal Ranking
+
+This mirrors modern industrial recommendation architectures.
+
+---
+
+### 3️⃣ Multiple Signals Matter
+
+Recommendations are not driven solely by similarity.
+
+The engine incorporates:
+
+* Semantic Relevance
+* Product Ratings
 * Popularity
-* Budget Compatibility
-* Business Quality Score
-
-## Personalization Layer
-
-Supports profile-aware recommendation boosting:
-
-* Gaming Users
-* Students
-* AI/ML Students
-
-## Explainable AI
-
-Every recommendation includes reasoning based on:
-
-* Query relevance
-* Rating quality
-* Hardware suitability
-* User preferences
-* Ranking signals
-
-## Interactive Dashboard
-
-Streamlit-based interface featuring:
-
-* Product Search
-* User Profile Selection
-* Recommendation Visualization
-* Analytics Dashboard
-* Recommendation Explanations
-
-## Evaluation Framework
-
-Implemented evaluation metrics:
-
-* Precision@K
-* Recall@K
-* NDCG@K
+* Budget Constraints
+* Business Quality Signals
 
 ---
 
-# System Architecture
+### 4️⃣ Personalization Improves Relevance
 
-![Architecture Diagram](assets/system_architecture.png)
+Recommendations adapt to different user personas and preferences.
 
-## Recommendation Pipeline
+---
 
-```text
-User Query
-      ↓
-Sentence Transformer
-(all-MiniLM-L6-v2)
-Embedding Generation
-      ↓
-FAISS (IndexFlatL2)
-Semantic Retrieval
-      ↓
-Top-K Candidate Products
-      ↓
-Ranking Engine
-• Similarity
-• Rating
-• Popularity
-• Budget
-• Business Score
-      ↓
-Personalization
-Profile-Based Boosting
-      ↓
-Explanation Layer
-      ↓
-Streamlit Dashboard
-Interactive UI
+### 5️⃣ Explainability Builds Trust
+
+Every recommendation is accompanied by a human-readable explanation describing why it was selected.
+
+---
+
+# 🏗 System Architecture
+
+```text id="xxtq8w"
+                         User Query
+                              │
+                              ▼
+
+                Sentence Transformer Encoder
+                     all-MiniLM-L6-v2
+                              │
+                              ▼
+
+                  Semantic Query Embedding
+                              │
+                              ▼
+
+                   FAISS Vector Database
+                    IndexFlatL2 Search
+                              │
+                              ▼
+
+                  Top-K Candidate Products
+                              │
+                              ▼
+
+                   Multi-Signal Ranking
+          ┌────────────┬────────────┬────────────┐
+          ▼            ▼            ▼            ▼
+
+     Similarity    Rating    Popularity    Budget
+
+                              │
+                              ▼
+
+                     Personalization Layer
+                              │
+                              ▼
+
+                     Explainability Engine
+                              │
+                              ▼
+
+                      Streamlit Dashboard
 ```
 
 ---
 
-# Technology Stack
+# 🚀 Key Features
 
-## Machine Learning
+## 🔍 Semantic Search Engine
 
-* Sentence Transformers
-* Hugging Face Transformers
-* NumPy
-* Pandas
+Traditional search:
 
-## Vector Retrieval
+```text id="6vt6tq"
+Keyword → Match
+```
 
-* FAISS
-* Semantic Search
-* Dense Vector Embeddings
+ARGUS-style retrieval:
 
-## Backend
+```text id="i5k3x8"
+Meaning → Retrieval
+```
 
-* Python
-* Modular Recommendation Engine
+### Capabilities
 
-## Frontend
+* Transformer Embeddings
+* Context-Aware Search
+* Semantic Understanding
+* Query Intent Recognition
+* Dense Vector Retrieval
 
-* Streamlit
+### Model
 
-## Analytics
-
-* Matplotlib
-* Seaborn
-
-## Testing
-
-* Unittest
-
----
-
-# Project Workflow
-
-## Step 1: Data Processing
-
-Raw product and review data are cleaned and preprocessed.
-
-Tasks:
-
-* Missing value handling
-* Duplicate removal
-* Product aggregation
-* Feature engineering
-
----
-
-## Step 2: Text Representation
-
-Product information is converted into semantic embeddings using:
-
-```python
+```text id="tzgtjh"
 all-MiniLM-L6-v2
 ```
 
 Embedding Dimension:
 
-```text
+```text id="m4p79v"
 384
 ```
 
 ---
 
-## Step 3: Vector Indexing
+## ⚡ Vector Retrieval Layer
 
-Embeddings are stored inside a FAISS vector index.
+High-performance nearest-neighbor search powered by FAISS.
 
-Benefits:
+### Features
 
-* Fast retrieval
-* Scalable similarity search
-* Efficient nearest-neighbor lookup
+* IndexFlatL2 Retrieval
+* Fast Top-K Search
+* Semantic Similarity Matching
+* Scalable Candidate Retrieval
 
----
+### Benefits
 
-## Step 4: Candidate Retrieval
-
-User queries are embedded and matched against product vectors.
-
-Output:
-
-```text
-Top-K Candidate Products
-```
+* Millisecond Search
+* Efficient Vector Operations
+* Production-Ready Retrieval Architecture
 
 ---
 
-## Step 5: Ranking Engine
+## 🎯 Multi-Signal Ranking Engine
 
-Candidate products are scored using:
+Candidate products are ranked using a weighted scoring framework.
 
-```text
+### Ranking Signals
+
+| Signal              | Purpose                          |
+| ------------------- | -------------------------------- |
+| Semantic Similarity | Measures query relevance         |
+| Product Rating      | Captures customer satisfaction   |
+| Popularity          | Measures market adoption         |
+| Budget Match        | Ensures affordability alignment  |
+| Business Score      | Incorporates platform priorities |
+
+---
+
+### Ranking Formula
+
+```text id="iw2vwy"
 Final Score =
 0.35 × Similarity
 + 0.25 × Rating
@@ -224,140 +235,237 @@ Final Score =
 
 ---
 
-## Step 6: Personalization
+## 👤 Personalization Layer
 
-Profile-specific boosts are applied.
+Profile-aware recommendation boosting enables tailored experiences.
 
-Examples:
+### 🎮 Gaming User
 
-### Gaming User
-
-Boosts:
+Boosts products related to:
 
 * Gaming
-* RTX
-* Graphics
+* RTX GPUs
+* Graphics Performance
 * ASUS
-* Lenovo
+* Lenovo LOQ
+* Gaming Laptops
 
-### AI Student
+---
 
-Boosts:
+### 🤖 AI / ML Student
 
-* GPU
+Boosts products optimized for:
+
 * Machine Learning
 * Deep Learning
 * High RAM
+* CUDA Support
+* GPU Workloads
 
-### Student
+---
 
-Boosts:
+### 🎓 Student
 
-* Affordable
-* Lightweight
+Prioritizes:
+
+* Affordability
 * Battery Life
+* Lightweight Devices
+* Daily Productivity
 
 ---
 
-## Step 7: Explainability
+## 💡 Explainable AI Layer
 
-Human-readable explanations are generated describing:
+Every recommendation includes transparent reasoning.
 
-* Why the product was retrieved
-* Ranking factors
-* User-profile alignment
-* Hardware suitability
+### Example Explanations
 
----
+* Retrieved due to strong semantic relevance
+* Highly rated by customers
+* Fits specified budget constraints
+* Suitable for AI workloads
+* Matches selected user profile
 
-# Application Screenshots
+This transforms recommendations from:
 
-## Recommendation Dashboard
-
-![Dashboard](assets/screenshots/dashboard.png)
-
-## Recommendation Results
-
-![Recommendations](assets/screenshots/recommendation_card.png)
-
-## Analytics Dashboard
-
-![Analytics](assets/screenshots/analytics.png)
-
----
-
-# Example Query
-
-Input:
-
-```text
-Need laptop for AI under 90k
+```text id="2h3wgo"
+"Recommended"
 ```
 
-Output:
+to:
 
-```text
-1. ASUS Zephyrus Deep Learning Laptop
-2. Lenovo LOQ Gaming Laptop
-3. HP Pavilion Gaming Laptop
+```text id="7rq8aq"
+"Recommended because..."
 ```
-
-Each recommendation includes:
-
-* Product Name
-* Rating
-* Price
-* Recommendation Score
-* User Profile
-* Explanation
 
 ---
 
-# Evaluation Metrics
+## 📊 Analytics Dashboard
 
-Implemented:
+Interactive Streamlit dashboard providing:
 
-| Metric      | Description                          |
-| ----------- | ------------------------------------ |
-| Precision@K | Relevant recommendations among top K |
-| Recall@K    | Coverage of relevant products        |
-| NDCG@K      | Ranking quality evaluation           |
+### User Features
 
-Evaluation results are stored in:
+* Product Search
+* Profile Selection
+* Recommendation Results
+* Explanation Viewer
 
-```text
+### Analytics Features
+
+* Product Distribution
+* Rating Analysis
+* Recommendation Trends
+* Search Statistics
+* Ranking Insights
+
+---
+
+# 🔄 End-to-End Workflow
+
+## Stage 1 — Data Processing
+
+Raw product and review data are cleaned and standardized.
+
+### Operations
+
+* Missing Value Handling
+* Duplicate Removal
+* Product Aggregation
+* Feature Engineering
+* Metadata Processing
+
+---
+
+## Stage 2 — Embedding Generation
+
+Product descriptions are converted into dense semantic vectors using Sentence Transformers.
+
+### Model
+
+```python id="ykuh6s"
+all-MiniLM-L6-v2
+```
+
+---
+
+## Stage 3 — Vector Index Construction
+
+Generated embeddings are stored inside a FAISS index.
+
+### Benefits
+
+* Fast Retrieval
+* Scalable Search
+* Efficient Similarity Matching
+
+---
+
+## Stage 4 — Candidate Retrieval
+
+User queries are embedded and matched against product vectors.
+
+### Output
+
+```text id="z4gxnh"
+Top-K Candidate Products
+```
+
+---
+
+## Stage 5 — Ranking
+
+Retrieved products are scored using business and relevance signals.
+
+---
+
+## Stage 6 — Personalization
+
+User-profile boosts are applied.
+
+---
+
+## Stage 7 — Explainability
+
+Recommendation reasoning is generated.
+
+---
+
+## Stage 8 — Dashboard Presentation
+
+Results are delivered through an interactive Streamlit interface.
+
+---
+
+# 📈 Evaluation Framework
+
+The recommendation engine includes standard ranking metrics.
+
+### Implemented Metrics
+
+| Metric      | Description                         |
+| ----------- | ----------------------------------- |
+| Precision@K | Relevant items within Top-K results |
+| Recall@K    | Coverage of relevant products       |
+| NDCG@K      | Ranking quality evaluation          |
+
+### Evaluation Output
+
+```text id="4bnj9j"
 results/evaluation_report.csv
 ```
 
 ---
 
-# Dataset
+# 🛠 Technology Stack
 
-The project supports:
+## Machine Learning
 
-### Demonstration Dataset
+<img src="https://skillicons.dev/icons?i=python" />
 
-Used for:
-
-* Testing
-* Reproducibility
-* Streamlit UI Demonstration
-
-### Real Amazon Dataset Support
-
-Pipeline supports:
-
-* Product metadata
-* Product reviews
-* Product aggregation
-* Embedding generation
-* Large-scale vector indexing
+* Sentence Transformers
+* Hugging Face Transformers
+* NumPy
+* Pandas
 
 ---
 
-# Project Structure
+## Vector Retrieval
 
-```text
+* FAISS
+* Dense Embeddings
+* Semantic Search
+
+---
+
+## Frontend
+
+<img src="https://skillicons.dev/icons?i=streamlit" />
+
+* Streamlit Dashboard
+* Interactive Analytics
+
+---
+
+## Analytics
+
+* Matplotlib
+* Seaborn
+
+---
+
+## Testing
+
+* Unit Testing
+* Recommendation Validation
+* Ranking Verification
+
+---
+
+# 📂 Project Structure
+
+```text id="kvr6w2"
 amazon-rec-engine/
 │
 ├── analytics/
@@ -384,122 +492,63 @@ amazon-rec-engine/
 
 ---
 
-# Installation
+# 🧪 Engineering Highlights
 
-Clone the repository:
+### Machine Learning
 
-```bash
-git clone <repository-url>
-cd amazon-rec-engine
-```
+* Semantic Search
+* Dense Vector Retrieval
+* Explainable AI
+* Recommendation Systems
 
-Create virtual environment:
+### Software Engineering
 
-```bash
-python -m venv venv
-```
+* Modular Architecture
+* Scalable Pipeline Design
+* Reusable Components
+* Logging Framework
 
-Activate environment:
+### Data Engineering
 
-### Windows
+* Data Processing Pipeline
+* Feature Engineering
+* Vector Indexing
 
-```bash
-venv\Scripts\activate
-```
+### Product Engineering
 
-### Linux / Mac
-
-```bash
-source venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
+* Personalized Experiences
+* Business-Aware Ranking
+* Analytics Dashboard
 
 ---
 
-# Running the Project
+# 🔮 Future Roadmap
 
-Run the recommendation pipeline:
+### Recommendation Intelligence
 
-```bash
-python run_pipeline.py
-```
+* Collaborative Filtering
+* Hybrid Recommendation Systems
+* User Behavior Modeling
 
-Launch Streamlit Dashboard:
-
-```bash
-streamlit run app.py
-```
-
-Run Unit Tests:
-
-```bash
-python -m unittest tests.test_recommendations
-```
-
----
-
-# Logging
-
-Recommendation requests are automatically logged.
-
-Location:
-
-```text
-logs/recommendation_logs.csv
-```
-
-Captured fields:
-
-* Timestamp
-* Query
-* User Profile
-* Retrieved Products
-* Final Product
-* Recommendation Score
-
----
-
-# Future Improvements
-
-## Learning-to-Rank
-
-Replace rule-based ranking with:
+### Learning-to-Rank
 
 * LambdaMART
 * XGBoost Ranker
 * LightGBM Ranker
 
-## Hybrid Recommendation Systems
+### Real-Time Learning
 
-Combine:
-
-* Content-Based Filtering
-* Collaborative Filtering
-
-## Real-Time Feedback Learning
-
-Incorporate:
-
-* Click Signals
+* Click Feedback
 * Purchase Signals
-* User Interaction Data
+* Reinforcement Feedback Loops
 
-## Multimodal Search
+### Search Enhancements
 
-Support:
+* Multimodal Search
+* Image Retrieval
+* Visual Product Matching
 
-* Image Search
-* Text Search
-* Product Metadata
-
-## Large-Scale Deployment
-
-Potential deployment using:
+### Deployment
 
 * FastAPI
 * Docker
@@ -508,12 +557,27 @@ Potential deployment using:
 
 ---
 
-# License
+# 👨‍💻 Author
 
-This project is released under the MIT License.
+## Omjee R Giri
+
+AI & Machine Learning Engineer • Recommendation Systems Enthusiast • Data Science Practitioner
+
+**Built to explore:**
+
+* Recommendation Systems
+* Semantic Search
+* Vector Databases
+* Explainable AI
+* Personalized Ranking
+* Production ML Architectures
 
 ---
 
-# Author
+<div align="center">
 
-Omjee R Giri
+## 🛒 Recommendation Is Not Search.
+
+### It's Understanding Intent.
+
+</div>
