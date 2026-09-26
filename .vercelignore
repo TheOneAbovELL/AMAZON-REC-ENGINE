@@ -1,0 +1,20 @@
+# Exclude local Python scripts and ML environment from Vercel build
+app.py
+requirements.txt
+run_pipeline.py
+api_server.py
+validate_dataset.py
+validate_keywords.py
+validate_missing.py
+test_load.py
+tests/
+results/
+scripts/
+logs/
+venv/
+__pycache__/
+*.pyc
+
+# Raw data
+data/raw/
+data/processed/unified_dataset.csv
