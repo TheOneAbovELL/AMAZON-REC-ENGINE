@@ -1,4 +1,3 @@
-from numpy.ma import product
 import streamlit as st
 from pathlib import Path
 
@@ -89,16 +88,40 @@ def build_sample_dataframe():
 @st.cache_resource
 def load_engine():
     engine = RecommendationEngine()
-    data_path = Path("data/meta_Electronics.json")
+    data_path = Path("data/processed/product_dataset.csv")
+    if not data_path.exists():
+        data_path = Path("data/meta_Electronics.json")
     models_dir = Path("models")
     models_dir.mkdir(parents=True, exist_ok=True)
 
     if data_path.exists():
-        engine.load_resources(
-            df_path=str(data_path),
-            embeddings_path=str(models_dir / "product_embeddings.npy"),
-            index_path=str(models_dir / "faiss.index"),
-        )
+        if str(data_path).endswith(".csv"):
+            df = pd.read_csv(data_path)
+        else:
+            df = pd.read_json(data_path, lines=True)
+        df = clean_data(df)
+        df = create_combined_text(df)
+        engine.df = df
+
+        embeddings_path = models_dir / "product_embeddings.npy"
+        index_path = models_dir / "faiss.index"
+
+        if embeddings_path.exists() and index_path.exists():
+            import numpy as np
+            import faiss
+
+            engine.embeddings = np.load(str(embeddings_path))
+            engine.index = faiss.read_index(str(index_path))
+        else:
+            embeddings = generate_embeddings(df["combined_text"].tolist())
+            index = build_index(embeddings)
+            engine.embeddings = embeddings
+            engine.index = index
+            import numpy as np
+            import faiss
+
+            np.save(str(embeddings_path), embeddings)
+            faiss.write_index(index, str(index_path))
     else:
         df = build_sample_dataframe()
         df = clean_data(df)

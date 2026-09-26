@@ -1,0 +1,43 @@
+:root {
+  --amazon-nav: #131921;
+  --amazon-subnav: #232f3e;
+  --amazon-orange: #ff9900;
+  --amazon-orange-hover: #e68a00;
+  --amazon-blue: #007185;
+  --amazon-blue-hover: #005a6a;
+  --bg-page: #f0f2f2;
+  --bg-card: #ffffff;
+  --text-main: #0f1111;
+  --text-muted: #565959;
+  --border-light: #d5d9d9;
+  --star-gold: #ffa41c;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--amazon-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--amazon-orange);
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}

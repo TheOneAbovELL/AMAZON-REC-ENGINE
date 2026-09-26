@@ -16,11 +16,14 @@ LOG_FIELDS = [
 
 
 def ensure_log_file(log_path: Path = DEFAULT_LOG_PATH):
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    if not log_path.exists():
-        with log_path.open("w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=LOG_FIELDS)
-            writer.writeheader()
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        if not log_path.exists():
+            with log_path.open("w", newline="", encoding="utf-8") as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=LOG_FIELDS)
+                writer.writeheader()
+    except (OSError, PermissionError):
+        pass
 
 
 def log_recommendation(
@@ -31,15 +34,18 @@ def log_recommendation(
     score: float,
     log_path: Path = DEFAULT_LOG_PATH,
 ):
-    ensure_log_file(log_path)
-    row = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "query": query,
-        "user_profile": user_profile,
-        "retrieved_products": json.dumps(retrieved_products, ensure_ascii=False),
-        "final_product": final_product,
-        "score": f"{score:.4f}",
-    }
-    with log_path.open("a", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=LOG_FIELDS)
-        writer.writerow(row)
+    try:
+        ensure_log_file(log_path)
+        row = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "query": query,
+            "user_profile": user_profile,
+            "retrieved_products": json.dumps(retrieved_products, ensure_ascii=False),
+            "final_product": final_product,
+            "score": f"{score:.4f}",
+        }
+        with log_path.open("a", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=LOG_FIELDS)
+            writer.writerow(row)
+    except (OSError, PermissionError):
+        pass

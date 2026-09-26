@@ -492,45 +492,91 @@ amazon-rec-engine/
 
 ---
 
-# 🧪 Engineering Highlights
+# Installation
 
-### Machine Learning
+Clone the repository:
 
-* Semantic Search
-* Dense Vector Retrieval
-* Explainable AI
-* Recommendation Systems
+```bash
+git clone <repository-url>
+cd amazon-rec-engine
+```
 
-### Software Engineering
+Create virtual environment:
 
-* Modular Architecture
-* Scalable Pipeline Design
-* Reusable Components
-* Logging Framework
+```bash
+python -m venv venv
+```
 
-### Data Engineering
+Activate environment:
 
-* Data Processing Pipeline
-* Feature Engineering
-* Vector Indexing
+### Windows
 
-### Product Engineering
+```bash
+venv\Scripts\activate
+```
 
-* Personalized Experiences
-* Business-Aware Ranking
-* Analytics Dashboard
+### Linux / Mac
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
-# 🔮 Future Roadmap
+# Running the Project
 
-### Recommendation Intelligence
+Run the recommendation pipeline:
 
-* Collaborative Filtering
-* Hybrid Recommendation Systems
-* User Behavior Modeling
+```bash
+python run_pipeline.py
+```
 
-### Learning-to-Rank
+Launch Streamlit Dashboard:
+
+```bash
+streamlit run app.py
+```
+
+Run Unit Tests:
+
+```bash
+python -m unittest tests.test_recommendations
+```
+
+---
+
+# Logging
+
+Recommendation requests are automatically logged.
+
+Location:
+
+```text
+logs/recommendation_logs.csv
+```
+
+Captured fields:
+
+* Timestamp
+* Query
+* User Profile
+* Retrieved Products
+* Final Product
+* Recommendation Score
+
+---
+
+# Future Improvements
+
+## Learning-to-Rank
+
+Replace rule-based ranking with:
 
 * LambdaMART
 * XGBoost Ranker

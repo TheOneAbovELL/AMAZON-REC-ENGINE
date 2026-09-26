@@ -7,23 +7,31 @@ __pycache__/
 # Virtual environment
 venv/
 .env
+.env.local
+.env.*.local
 
-# Data
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Data - ignore raw and large intermediate files, keep deployment datasets
 /data/raw/
-/data/processed/
+/data/processed/unified_dataset.csv
+!/data/processed/product_dataset.csv
+!/data/processed/products.json
 
-# Models
-/models/
+# Keep precomputed models for deployment
+!/models/faiss.index
+!/models/product_embeddings.npy
 
 data/meta_Electronics.json
 
 # Jupyter notebooks
 .ipynb_checkpoints/
-
-*.pyc
-
-models/*.npy
-models/*.index
 
 logs/recommendation_logs.csv
 

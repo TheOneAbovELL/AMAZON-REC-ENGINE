@@ -289,14 +289,18 @@ class RecommendationEngine:
 
     def explain(self, query: str, product: dict, user_type: str) -> str:
         """Generates dynamic explanations using your active unified dataset layout."""
-        title = product.get("name", "Unknown Item")
-        price = product.get("discount_price", 0.0)
+        title = product.get("name", product.get("title", "Unknown Item"))
+        price_val = product.get("discount_price", product.get("price", 0.0))
+        try:
+            formatted_price = f"₹{float(price_val):,.2f}" if price_val is not None else "N/A"
+        except (ValueError, TypeError):
+            formatted_price = str(price_val) if price_val else "N/A"
         rating = product.get("rating", 0.0)
         
         explanation = (
             f"Recommended product: {title}.\n"
             f"Query context: '{query}' matches our vector index with a raw alignment score of {product.get('personalized_score', product.get('final_score', 0.0)):.4f}.\n"
-            f"Price: ₹{price:,.2f}.\n"
+            f"Price: {formatted_price}.\n"
             f"The item shows stable customer satisfaction with a rating of {rating}/5.\n"
             f"Optimized ranking weights applied for the '{user_type}' user profile."
         )
