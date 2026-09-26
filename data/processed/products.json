@@ -1072,7 +1072,7 @@
     "main_category": "industrial supplies",
     "sub_category": "Lab & Scientific",
     "reviewText": "Very powerful pocket magnifier that was well worth the money. A little hard to stay on the subject if its not stationery,but if stationery its fine Does the job very well. Very good item. However. Finding the SG3 batreries is not easy. Ordered them from amazon. Ad stated SG3 batery. Wrong. Cant find them local either. Check the major stores. No luck. Cool toy, cheap and very handy. Normally you'd struggle a lot to see clearly without proper illumination, and this is what makes this toy so cool. As far as microscopes go, this device's top magnification of 100X isn't that high, but that is more than made up by it's versatility: You can look at ANY surface (as opposed to only small, thin and transparent specimens), since the light comes from the front, not the back. So far, I've only looked at stuff around the house (couch surface, desk surface, laptop surface, tablecloth, etc), but I am already satisfied by what I've seen (pun). For only $12, this is a great value, and a fun little gadget to have around the house. It really zooms in on things. However, it's really tough to put it over exactly what I want to look at. It will zoom right down to the nitty-gritty. I drew an ex, on a paper and I had to back it off because the black graphite was so big. . So with some manipulation. I could really zoom in and see something. If you wanted to see scratches on a coin. This would do it. No problem.",
-    "overall": 3.7387387387387383,
+    "overall": 3.7387387387387374,
     "no_of_ratings": "2,800",
     "discount_price": 3077.0,
     "actual_price": 3846.0
@@ -3397,5 +3397,60 @@
     "no_of_ratings": "2,264",
     "discount_price": 0.0,
     "actual_price": 23995.0
+  },
+  {
+    "asin": "B0CUR_SP01",
+    "name": "JBL Flip 6 Wireless Portable Bluetooth Speaker (IP67 Waterproof, Deep Bass, 12H Playtime)",
+    "main_category": "audio & speakers",
+    "sub_category": "Speakers",
+    "reviewText": "Crisp loud sound with booming bass and rugged waterproof design. Perfect wireless portable speaker for outdoor trips and home parties.",
+    "overall": 4.6,
+    "no_of_ratings": "12400",
+    "discount_price": 8999.0,
+    "actual_price": 13999.0
+  },
+  {
+    "asin": "B0CUR_SP02",
+    "name": "Sony SRS-XE300 X-Series Wireless Portable Bluetooth Speaker (Ambient Noise Sensing, 24H Battery)",
+    "main_category": "audio & speakers",
+    "sub_category": "Speakers",
+    "reviewText": "Line-shaped diffuser spreads music evenly across large rooms. Waterproof, dustproof, and shockproof with fast Type-C charging.",
+    "overall": 4.5,
+    "no_of_ratings": "3100",
+    "discount_price": 12990.0,
+    "actual_price": 19990.0
+  },
+  {
+    "asin": "B0CUR_AC01",
+    "name": "LG 1.5 Ton 3 Star AI DUAL Inverter Split AC (Copper, AI Convertible 6-in-1, HD Filter with Anti-Virus Protection)",
+    "main_category": "appliances",
+    "sub_category": "Air Conditioners",
+    "reviewText": "Great cooling performance, whisper silent operation, and power efficient with AI dual inverter technology.",
+    "overall": 4.3,
+    "no_of_ratings": "8450",
+    "discount_price": 37990.0,
+    "actual_price": 68990.0
+  },
+  {
+    "asin": "B0CUR_HS01",
+    "name": "HyperX Cloud II Gaming Headset (7.1 Surround Sound, Memory Foam Ear Pads, Detachable Noise Cancelling Mic)",
+    "main_category": "computers & laptops",
+    "sub_category": "Gaming Accessories",
+    "reviewText": "Legendary comfort and positional audio accuracy for competitive gaming. Durable aluminum frame and clear voice chat microphone.",
+    "overall": 4.6,
+    "no_of_ratings": "22500",
+    "discount_price": 6990.0,
+    "actual_price": 9990.0
+  },
+  {
+    "asin": "B0CUR_MS01",
+    "name": "Logitech G502 HERO High Performance Wired Gaming Mouse (HERO 25K Sensor, RGB, 11 Programmable Buttons)",
+    "main_category": "computers & laptops",
+    "sub_category": "Gaming Accessories",
+    "reviewText": "The most popular gaming mouse with pinpoint optical tracking, adjustable weights, and hyper-fast scroll wheel.",
+    "overall": 4.6,
+    "no_of_ratings": "35000",
+    "discount_price": 3995.0,
+    "actual_price": 5495.0
   }
 ]

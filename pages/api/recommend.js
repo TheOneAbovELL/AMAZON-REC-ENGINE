@@ -20,7 +20,10 @@ const INTENT_MAPPINGS = {
   laptop: ["laptop", "notebook", "macbook", "victus", "loq", "ideapad", "vivobook", "nitro", "strix", "tuf", "zephyrus"],
   keyboard: ["keyboard", "keypad", "mechanical keyboard"],
   earbuds: ["earbud", "earbuds", "earphone", "earphones", "tws", "airpods"],
-  headphone: ["headphone", "headphones", "headset"],
+  headphone: ["headphone", "headphones", "headset", "hyperx", "cloud ii"],
+  speaker: ["speaker", "speakers", "soundbar", "jbl flip", "bluetooth speaker"],
+  ac: ["air conditioner", "split ac", "inverter ac"],
+  mouse: ["mouse", "gaming mouse", "g502"],
   monitor: ["monitor", "display", "ultrasharp", "ultragear"],
   router: ["router", "wifi", "access point", "mesh"],
   cable: ["cable", "hdmi", "toslink", "ethernet cable"],
@@ -158,7 +161,7 @@ function calculateRelevanceScore(query, product, targetIntent) {
     score += 0.3;
   }
 
-  return Math.min(1.0, Math.max(0.1, score));
+  return Math.min(1.0, score);
 }
 
 function computePersonalizationBoost(product, userProfile) {
