@@ -1,0 +1,1151 @@
+{
+  "version": 1,
+  "urls": {
+    "image": "https://m.media-amazon.com/images/I/{image_id}._AC_UL320_.jpg",
+    "product": "https://www.amazon.in/dp/{asin}"
+  },
+  "weights": {
+    "relevance": 0.62,
+    "quality": 0.14,
+    "popularity": 0.1,
+    "deal": 0.04,
+    "profile": 0.1
+  },
+  "relevance": {
+    "dense_weight": 0.55,
+    "lexical_weight": 0.45,
+    "dense_floor": 0.2,
+    "dense_ceiling": 0.7,
+    "intent_mismatch_penalty": 0.5,
+    "min_relevance": 0.12
+  },
+  "quality": {
+    "prior_rating": 4.0,
+    "prior_count": 50,
+    "floor": 3.0,
+    "ceiling": 5.0
+  },
+  "popularity": {
+    "reference_count": 100000
+  },
+  "retrieval": {
+    "lexical_candidates": 300,
+    "dense_candidates": 300,
+    "max_intent_candidates": 4000,
+    "dedupe_tokens": 7
+  },
+  "bm25": {
+    "k1": 1.2,
+    "b": 0.75
+  },
+  "similar": {
+    "candidates": 60,
+    "same_subcategory_bonus": 0.1,
+    "weights": {
+      "similarity": 0.75,
+      "subcategory": 0.1,
+      "quality": 0.1,
+      "popularity": 0.05
+    }
+  },
+  "text": {
+    "phrase_normalizations": {
+      "t-shirts": "tshirts",
+      "t-shirt": "tshirt",
+      "t shirts": "tshirts",
+      "t shirt": "tshirt",
+      "wi-fi": "wifi",
+      "smart watches": "smartwatches",
+      "smart watch": "smartwatch",
+      "ear buds": "earbuds",
+      "head phones": "headphones",
+      "power bank": "powerbank",
+      "mobile phone": "smartphone",
+      "mobile phones": "smartphones",
+      "air conditioners": "air conditioner",
+      "split ac": "air conditioner",
+      "window ac": "air conditioner",
+      "kurtis": "kurti"
+    },
+    "stopwords": [
+      "a",
+      "an",
+      "and",
+      "any",
+      "are",
+      "as",
+      "at",
+      "be",
+      "best",
+      "buy",
+      "by",
+      "can",
+      "do",
+      "for",
+      "from",
+      "get",
+      "good",
+      "great",
+      "has",
+      "have",
+      "i",
+      "im",
+      "in",
+      "is",
+      "it",
+      "me",
+      "my",
+      "need",
+      "nice",
+      "of",
+      "on",
+      "or",
+      "please",
+      "recommend",
+      "show",
+      "some",
+      "suggest",
+      "that",
+      "the",
+      "this",
+      "to",
+      "top",
+      "want",
+      "looking",
+      "with",
+      "which",
+      "you",
+      "your",
+      "rs",
+      "inr",
+      "rupees",
+      "price",
+      "range",
+      "budget",
+      "cheap",
+      "affordable",
+      "inexpensive",
+      "something",
+      "under",
+      "below",
+      "within",
+      "upto",
+      "less",
+      "than"
+    ],
+    "low_price_terms": [
+      "cheap",
+      "cheapest",
+      "affordable",
+      "budget",
+      "inexpensive",
+      "low price",
+      "value for money"
+    ]
+  },
+  "intents": {
+    "laptop": {
+      "label": "Laptops",
+      "query_terms": [
+        "laptop",
+        "laptops",
+        "notebook",
+        "macbook",
+        "chromebook",
+        "ultrabook"
+      ],
+      "product_patterns": [
+        "\\blaptops?\\b",
+        "\\bnotebook pc\\b",
+        "\\bmacbook\\b",
+        "\\bchromebook\\b",
+        "\\bthinkpad\\b",
+        "\\bideapad\\b",
+        "\\bvivobook\\b",
+        "\\bzenbook\\b",
+        "\\binspiron\\b",
+        "\\bvostro\\b"
+      ],
+      "product_exclude": [
+        "\\bbags?\\b",
+        "\\bbackpacks?\\b",
+        "\\bsleeves?\\b",
+        "\\bstands?\\b",
+        "\\btables?\\b",
+        "\\bskins?\\b",
+        "\\bstickers?\\b",
+        "\\bdecals?\\b",
+        "\\bchargers?\\b",
+        "\\badapters?\\b",
+        "\\bcooling pad\\b",
+        "\\bcooler\\b",
+        "\\bscreen protector\\b",
+        "\\btray\\b",
+        "\\bdesk\\b",
+        "\\bholder\\b",
+        "\\briser\\b",
+        "\\bhub\\b",
+        "\\bdocking\\b",
+        "\\bmouse\\b",
+        "\\bcase\\b",
+        "\\bcover\\b",
+        "\\breplacement\\b",
+        "\\block\\b",
+        "\\bcleaning\\b",
+        "\\bpouch\\b",
+        "\\bmessenger\\b",
+        "\\bbriefcase\\b",
+        "\\btrolley\\b",
+        "\\bcompartment\\b",
+        "\\bfor (?:[a-z0-9,/&.-]+ ){0,4}(?:laptops?|macbooks?|pcs?|computers?|notebooks?|desktops?)\\b",
+        "\\bcompatible\\b",
+        "\\bexternal\\b",
+        "\\bhard drive\\b",
+        "\\bhdd\\b",
+        "\\bpen ?drive\\b",
+        "\\bheadsets?\\b",
+        "\\bspeakers?\\b",
+        "\\bwebcam\\b",
+        "\\blaptop memory\\b",
+        "\\bcables?\\b",
+        "\\bmemory card\\b",
+        "\\bkeyboards?\\b.*\\bmouse\\b",
+        "\\bheadphones?\\b",
+        "\\bearphones?\\b",
+        "\\bmicrophone\\b",
+        "\\bpower bank\\b",
+        "\\bpowerbank\\b"
+      ]
+    },
+    "smartphone": {
+      "label": "Smartphones",
+      "query_terms": [
+        "smartphone",
+        "smartphones",
+        "phone",
+        "phones",
+        "mobile",
+        "mobiles",
+        "iphone"
+      ],
+      "product_patterns": [
+        "\\bsmartphones?\\b",
+        "\\biphone \\d",
+        "\\b\\d+ ?gb ram\\b.*\\bstorage\\b",
+        "\\b\\d+ ?gb\\b.*\\b\\d+ ?gb storage\\b"
+      ],
+      "product_exclude": [
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\bholders?\\b",
+        "\\bstands?\\b",
+        "\\bchargers?\\b",
+        "\\bcables?\\b",
+        "\\bscreen protector\\b",
+        "\\btempered\\b",
+        "\\bglass\\b",
+        "\\bguard\\b",
+        "\\btripod\\b",
+        "\\bmount\\b",
+        "\\badapters?\\b",
+        "\\bpowerbank\\b",
+        "\\bskins?\\b",
+        "\\bpouch\\b",
+        "\\bselfie\\b",
+        "\\bgimbal\\b",
+        "\\bgrip\\b",
+        "\\btab\\b",
+        "\\btablet\\b",
+        "\\bpad\\b",
+        "\\bwatch\\b",
+        "\\bbuds\\b",
+        "\\bearbuds\\b",
+        "\\blens\\b",
+        "\\bpen ?drive\\b",
+        "\\bmemory card\\b",
+        "\\bmicrosd\\b",
+        "\\bsd card\\b",
+        "\\barmbands?\\b",
+        "\\bpouch(es)?\\b",
+        "\\bsim card\\b",
+        "\\bsim adapter\\b",
+        "\\bstylus\\b",
+        "\\bring holder\\b"
+      ]
+    },
+    "tablet": {
+      "label": "Tablets",
+      "query_terms": [
+        "tablet",
+        "tablets",
+        "tab",
+        "ipad"
+      ],
+      "product_patterns": [
+        "\\btablets?\\b",
+        "\\bipad\\b",
+        "\\bgalaxy tab\\b",
+        "\\bredmi pad\\b",
+        "\\bxiaomi pad\\b",
+        "\\blenovo tab\\b",
+        "\\brealme pad\\b"
+      ],
+      "product_exclude": [
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\bstands?\\b",
+        "\\bholders?\\b",
+        "\\bscreen protector\\b",
+        "\\btempered\\b",
+        "\\bglass\\b",
+        "\\bstylus\\b",
+        "\\bpencil\\b",
+        "\\bkeyboard\\b",
+        "\\bcharger\\b",
+        "\\bpouch\\b",
+        "\\bsleeve\\b",
+        "\\bmedicine\\b",
+        "\\bvitamin\\b",
+        "\\bmultivitamin\\b",
+        "\\bsupplement\\b",
+        "\\bmg\\b"
+      ]
+    },
+    "earbuds": {
+      "label": "Wireless earbuds",
+      "query_terms": [
+        "earbuds",
+        "earbud",
+        "tws",
+        "airpods",
+        "true wireless",
+        "earphones",
+        "earphone",
+        "neckband"
+      ],
+      "product_patterns": [
+        "\\bearbuds?\\b",
+        "\\btws\\b",
+        "\\btrue wireless\\b",
+        "\\bairpods\\b",
+        "\\bairdopes\\b",
+        "\\bbuds\\b",
+        "\\bearphones?\\b",
+        "\\bneckband\\b",
+        "\\bin-ear\\b",
+        "\\bin ear\\b"
+      ],
+      "product_exclude": [
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\bholders?\\b",
+        "\\btips\\b",
+        "\\bcables?\\b",
+        "\\badapters?\\b",
+        "\\bpouch\\b",
+        "\\bskins?\\b",
+        "\\bcleaning\\b",
+        "\\bstraps?\\b"
+      ]
+    },
+    "headphones": {
+      "label": "Headphones",
+      "query_terms": [
+        "headphones",
+        "headphone",
+        "headset",
+        "headsets"
+      ],
+      "product_patterns": [
+        "\\bheadphones?\\b",
+        "\\bheadsets?\\b",
+        "\\bover-ear\\b",
+        "\\bover ear\\b",
+        "\\bon-ear\\b",
+        "\\bon ear\\b"
+      ],
+      "product_exclude": [
+        "\\bstands?\\b",
+        "\\bhangers?\\b",
+        "\\bholders?\\b",
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\bcushions?\\b",
+        "\\bear pads\\b",
+        "\\bcables?\\b",
+        "\\badapters?\\b",
+        "\\bsplitter\\b",
+        "\\bpouch\\b"
+      ]
+    },
+    "smartwatch": {
+      "label": "Smartwatches & fitness bands",
+      "query_terms": [
+        "smartwatch",
+        "smartwatches",
+        "fitness band",
+        "fitness tracker",
+        "smart band"
+      ],
+      "product_patterns": [
+        "\\bsmartwatch(es)?\\b",
+        "\\bsmart watch(es)?\\b",
+        "\\bfitness band\\b",
+        "\\bfitness tracker\\b",
+        "\\bsmart band\\b",
+        "\\bapple watch\\b",
+        "\\bgalaxy watch\\b"
+      ],
+      "product_exclude": [
+        "\\bstraps?\\b",
+        "\\bbands? for\\b",
+        "\\bchargers?\\b",
+        "\\bcables?\\b",
+        "\\bscreen protector\\b",
+        "\\bguard\\b",
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\btempered\\b"
+      ]
+    },
+    "watch": {
+      "label": "Watches",
+      "query_terms": [
+        "watch",
+        "watches",
+        "wristwatch"
+      ],
+      "product_patterns": [
+        "\\bwatch(es)?\\b",
+        "\\bwristwatch\\b",
+        "\\bchronograph\\b"
+      ],
+      "product_exclude": [
+        "\\bstraps?\\b",
+        "\\bwatch box\\b",
+        "\\bwinder\\b",
+        "\\bbattery\\b",
+        "\\bscreen protector\\b",
+        "\\bcharger\\b",
+        "\\bcases?\\b"
+      ]
+    },
+    "speaker": {
+      "label": "Speakers & soundbars",
+      "query_terms": [
+        "speaker",
+        "speakers",
+        "soundbar",
+        "soundbars",
+        "home theatre",
+        "home theater"
+      ],
+      "product_patterns": [
+        "\\bspeakers?\\b",
+        "\\bsoundbars?\\b",
+        "\\bsound bar\\b",
+        "\\bhome theat(re|er)\\b",
+        "\\bpartybox\\b"
+      ],
+      "product_exclude": [
+        "\\bstands?\\b",
+        "\\bmounts?\\b",
+        "\\bbrackets?\\b",
+        "\\bcables?\\b",
+        "\\bwire\\b",
+        "\\bcovers?\\b",
+        "\\bcases?\\b",
+        "\\bgrill\\b",
+        "\\bphone\\b",
+        "\\bsmartphone\\b"
+      ]
+    },
+    "television": {
+      "label": "Televisions",
+      "query_terms": [
+        "tv",
+        "tvs",
+        "television",
+        "televisions",
+        "smart tv",
+        "led tv"
+      ],
+      "product_patterns": [
+        "\\b(smart|led|qled|oled|uhd|4k|hd ready|full hd) [^,()]*\\btv\\b",
+        "\\btelevisions?\\b",
+        "\\bandroid tv\\b",
+        "\\bgoogle tv\\b",
+        "\\bfire tv\\b.*\\binch\\b",
+        "\\b\\d{2} ?inch(es)?\\b.*\\btv\\b",
+        "\\b\\d{2,3} ?cm\\b.*\\btv\\b"
+      ],
+      "product_exclude": [
+        "\\bstand\\b",
+        "\\bwall mount\\b",
+        "\\bmount\\b",
+        "\\bbracket\\b",
+        "\\bremote\\b",
+        "\\bcover\\b",
+        "\\bstick\\b",
+        "\\bcables?\\b",
+        "\\btv box\\b",
+        "\\bset top\\b",
+        "\\bunit\\b",
+        "\\btrolley\\b",
+        "\\bcabinet\\b",
+        "\\bantenna\\b",
+        "\\bstabili[sz]er\\b"
+      ]
+    },
+    "monitor": {
+      "label": "Monitors",
+      "query_terms": [
+        "monitor",
+        "monitors",
+        "display"
+      ],
+      "product_patterns": [
+        "\\bmonitors?\\b"
+      ],
+      "product_exclude": [
+        "\\bstands?\\b",
+        "\\barms?\\b",
+        "\\bmounts?\\b",
+        "\\bbrackets?\\b",
+        "\\briser\\b",
+        "\\bcables?\\b",
+        "\\bbaby monitor\\b",
+        "\\bblood pressure\\b",
+        "\\bbp monitor\\b",
+        "\\bheart rate\\b",
+        "\\bglucose\\b",
+        "\\boximeter\\b",
+        "\\bcovers?\\b",
+        "\\bcleaning\\b",
+        "\\blight bar\\b",
+        "\\blamp\\b",
+        "\\bspeakers?\\b",
+        "\\bheadphones?\\b",
+        "\\bearphones?\\b",
+        "\\bin-ear\\b"
+      ]
+    },
+    "keyboard": {
+      "label": "Keyboards",
+      "query_terms": [
+        "keyboard",
+        "keyboards"
+      ],
+      "product_patterns": [
+        "\\bkeyboards?\\b"
+      ],
+      "product_exclude": [
+        "\\bcovers?\\b",
+        "\\bprotectors?\\b",
+        "\\bskins?\\b",
+        "\\bkeycaps?\\b",
+        "\\bcleaning\\b",
+        "\\btray\\b",
+        "\\bwrist rest\\b",
+        "\\bbags?\\b",
+        "\\blaptops?\\b",
+        "\\btablet\\b",
+        "\\bpiano\\b",
+        "\\bcases?\\b",
+        "\\bstickers?\\b"
+      ]
+    },
+    "mouse": {
+      "label": "Mice",
+      "query_terms": [
+        "mouse",
+        "mice"
+      ],
+      "product_patterns": [
+        "\\bmouse\\b",
+        "\\bmice\\b"
+      ],
+      "product_exclude": [
+        "\\bmouse ?pads?\\b",
+        "\\bmouse ?mats?\\b",
+        "\\bmousepad\\b",
+        "\\bbungee\\b",
+        "\\bcases?\\b",
+        "\\bskins?\\b",
+        "\\btrap\\b",
+        "\\brepellent\\b",
+        "\\bmickey\\b",
+        "\\bkeyboard\\b.*\\bcombo\\b"
+      ]
+    },
+    "camera": {
+      "label": "Cameras",
+      "query_terms": [
+        "camera",
+        "cameras",
+        "dslr",
+        "mirrorless",
+        "action camera"
+      ],
+      "product_patterns": [
+        "\\bcameras?\\b",
+        "\\bdslr\\b",
+        "\\bmirrorless\\b",
+        "\\bcamcorder\\b",
+        "\\bgopro\\b",
+        "\\binstax\\b"
+      ],
+      "product_exclude": [
+        "\\bbags?\\b",
+        "\\bbackpacks?\\b",
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\bstraps?\\b",
+        "\\btripods?\\b",
+        "\\bmonopod\\b",
+        "\\bbattery\\b",
+        "\\bbatteries\\b",
+        "\\bchargers?\\b",
+        "\\bscreen protector\\b",
+        "\\blens cap\\b",
+        "\\bfilters?\\b",
+        "\\bmounts?\\b",
+        "\\bremote\\b",
+        "\\bcleaning\\b",
+        "\\bmemory card\\b",
+        "\\bsd card\\b",
+        "\\bmicrosd\\b",
+        "\\bflash\\b",
+        "\\bgimbal\\b",
+        "\\bholders?\\b",
+        "\\bring light\\b",
+        "\\bstands?\\b",
+        "\\bcables?\\b",
+        "\\bfilm\\b",
+        "\\bdummy\\b",
+        "\\bcctv\\b.*\\bbox\\b"
+      ]
+    },
+    "air_conditioner": {
+      "label": "Air conditioners",
+      "query_terms": [
+        "ac",
+        "acs",
+        "air conditioner",
+        "airconditioner"
+      ],
+      "product_patterns": [
+        "\\bair conditioner\\b",
+        "\\bsplit ac\\b",
+        "\\bwindow ac\\b",
+        "\\binverter ac\\b",
+        "\\bsplit inverter\\b",
+        "\\bton\\b.*\\bac\\b"
+      ],
+      "product_exclude": [
+        "\\bcovers?\\b",
+        "\\bstabili[sz]er\\b",
+        "\\bstands?\\b",
+        "\\bremote\\b",
+        "\\bbrackets?\\b",
+        "\\bpipe\\b",
+        "\\bcleaning\\b",
+        "\\bfilters?\\b",
+        "\\bcapacitor\\b"
+      ]
+    },
+    "refrigerator": {
+      "label": "Refrigerators",
+      "query_terms": [
+        "fridge",
+        "fridges",
+        "refrigerator",
+        "refrigerators"
+      ],
+      "product_patterns": [
+        "\\brefrigerators?\\b",
+        "\\bfridge\\b"
+      ],
+      "product_exclude": [
+        "\\bcovers?\\b",
+        "\\bstands?\\b",
+        "\\bmats?\\b",
+        "\\bstabili[sz]er\\b",
+        "\\bmagnets?\\b",
+        "\\borgani[sz]er\\b",
+        "\\bcontainers?\\b",
+        "\\bstorage\\b",
+        "\\bboxes?\\b",
+        "\\bhandle\\b",
+        "\\bgasket\\b",
+        "\\bdeodori[sz]er\\b"
+      ]
+    },
+    "washing_machine": {
+      "label": "Washing machines",
+      "query_terms": [
+        "washing machine",
+        "washing machines",
+        "washer"
+      ],
+      "product_patterns": [
+        "\\bwashing machines?\\b",
+        "\\bwasher dryer\\b"
+      ],
+      "product_exclude": [
+        "\\bcovers?\\b",
+        "\\bstands?\\b",
+        "\\btrolley\\b",
+        "\\bdescaler\\b",
+        "\\bcleaner\\b",
+        "\\bcleaning\\b",
+        "\\bpipe\\b",
+        "\\bhose\\b",
+        "\\bdetergent\\b",
+        "\\bpowder\\b",
+        "\\bliquid\\b"
+      ]
+    },
+    "shoes": {
+      "label": "Shoes",
+      "query_terms": [
+        "shoes",
+        "shoe",
+        "sneakers",
+        "sneaker",
+        "running shoes",
+        "sports shoes"
+      ],
+      "product_patterns": [
+        "\\bshoes?\\b",
+        "\\bsneakers?\\b",
+        "\\bloafers?\\b",
+        "\\bderby\\b",
+        "\\boxfords?\\b",
+        "\\bmoccasins?\\b"
+      ],
+      "product_exclude": [
+        "\\bshoe rack\\b",
+        "\\bshoe cabinet\\b",
+        "\\bshoe stand\\b",
+        "\\bpolish\\b",
+        "\\bcleaner\\b",
+        "\\blaces?\\b",
+        "\\binsoles?\\b",
+        "\\bshoe bag\\b",
+        "\\bshoe covers?\\b",
+        "\\bdeodori[sz]er\\b",
+        "\\bbrush\\b",
+        "\\bshoe horn\\b",
+        "\\bshoe trees?\\b",
+        "\\borgani[sz]er\\b"
+      ]
+    },
+    "sandals": {
+      "label": "Sandals & flip-flops",
+      "query_terms": [
+        "sandals",
+        "sandal",
+        "slippers",
+        "slipper",
+        "flip flops",
+        "flip-flops",
+        "chappal",
+        "slides"
+      ],
+      "product_patterns": [
+        "\\bsandals?\\b",
+        "\\bslippers?\\b",
+        "\\bflip[- ]?flops?\\b",
+        "\\bchappals?\\b",
+        "\\bslides?\\b",
+        "\\bclogs?\\b"
+      ],
+      "product_exclude": []
+    },
+    "tshirt": {
+      "label": "T-shirts & polos",
+      "query_terms": [
+        "tshirt",
+        "tshirts",
+        "tee",
+        "tees",
+        "polo",
+        "polos"
+      ],
+      "product_patterns": [
+        "\\btshirts?\\b",
+        "\\bt-shirts?\\b",
+        "\\btees?\\b",
+        "\\bpolos?\\b"
+      ],
+      "product_exclude": []
+    },
+    "shirt": {
+      "label": "Shirts",
+      "query_terms": [
+        "shirt",
+        "shirts"
+      ],
+      "product_patterns": [
+        "\\bshirts?\\b"
+      ],
+      "product_exclude": [
+        "\\bt-shirts?\\b",
+        "\\btshirts?\\b",
+        "\\bsweatshirts?\\b",
+        "\\bshirt stays?\\b"
+      ]
+    },
+    "jeans": {
+      "label": "Jeans",
+      "query_terms": [
+        "jeans",
+        "denim",
+        "denims"
+      ],
+      "product_patterns": [
+        "\\bjeans?\\b",
+        "\\bdenims?\\b"
+      ],
+      "product_exclude": [
+        "\\bjackets?\\b",
+        "\\bshirts?\\b",
+        "\\bshorts\\b",
+        "\\bskirts?\\b"
+      ]
+    },
+    "kurta": {
+      "label": "Kurtas & kurtis",
+      "query_terms": [
+        "kurta",
+        "kurtas",
+        "kurti",
+        "kurtis"
+      ],
+      "product_patterns": [
+        "\\bkurta(s)?\\b",
+        "\\bkurti(s)?\\b"
+      ],
+      "product_exclude": []
+    },
+    "saree": {
+      "label": "Sarees",
+      "query_terms": [
+        "saree",
+        "sarees",
+        "sari",
+        "saris"
+      ],
+      "product_patterns": [
+        "\\bsarees?\\b",
+        "\\bsaris?\\b"
+      ],
+      "product_exclude": [
+        "\\bpins?\\b",
+        "\\bcovers?\\b",
+        "\\bbags?\\b",
+        "\\bshapewear\\b",
+        "\\bpetticoat\\b",
+        "\\bblouse piece\\b"
+      ]
+    },
+    "dress": {
+      "label": "Dresses",
+      "query_terms": [
+        "dress",
+        "dresses",
+        "gown",
+        "gowns"
+      ],
+      "product_patterns": [
+        "\\bdress(es)?\\b",
+        "\\bgowns?\\b"
+      ],
+      "product_exclude": [
+        "\\bdress material\\b",
+        "\\bunstitched\\b",
+        "\\bshirts?\\b",
+        "\\bshoes?\\b",
+        "\\bhangers?\\b"
+      ]
+    },
+    "backpack": {
+      "label": "Backpacks & bags",
+      "query_terms": [
+        "bag",
+        "bags",
+        "backpack",
+        "backpacks",
+        "rucksack",
+        "laptop bag",
+        "school bag"
+      ],
+      "product_patterns": [
+        "\\bbags?\\b",
+        "\\bbackpacks?\\b",
+        "\\brucksacks?\\b",
+        "\\bdaypack\\b"
+      ],
+      "product_exclude": [
+        "\\bsleeping bag\\b",
+        "\\bbean bag\\b",
+        "\\btea bags?\\b",
+        "\\bgarbage bags?\\b",
+        "\\bdustbin bags?\\b",
+        "\\bpunching bag\\b",
+        "\\bice bag\\b",
+        "\\bzip ?lock\\b"
+      ]
+    },
+    "luggage": {
+      "label": "Luggage",
+      "query_terms": [
+        "suitcase",
+        "suitcases",
+        "luggage",
+        "trolley bag",
+        "trolley"
+      ],
+      "product_patterns": [
+        "\\bsuitcases?\\b",
+        "\\bluggage\\b",
+        "\\btrolley bags?\\b",
+        "\\bcabin\\b.*\\btrolley\\b",
+        "\\bhard ?sided\\b"
+      ],
+      "product_exclude": [
+        "\\bcovers?\\b",
+        "\\btags?\\b",
+        "\\blocks?\\b",
+        "\\bscales?\\b",
+        "\\bstraps?\\b",
+        "\\bbelts?\\b"
+      ]
+    },
+    "powerbank": {
+      "label": "Power banks",
+      "query_terms": [
+        "powerbank",
+        "powerbanks"
+      ],
+      "product_patterns": [
+        "\\bpowerbanks?\\b",
+        "\\bpower banks?\\b"
+      ],
+      "product_exclude": [
+        "\\bcases?\\b",
+        "\\bcovers?\\b",
+        "\\bpouch\\b"
+      ]
+    },
+    "router": {
+      "label": "Wi-Fi routers",
+      "query_terms": [
+        "router",
+        "routers",
+        "wifi router",
+        "mesh wifi",
+        "range extender"
+      ],
+      "product_patterns": [
+        "\\brouters?\\b",
+        "\\bmesh\\b.*\\bwifi\\b",
+        "\\brange extender\\b",
+        "\\baccess point\\b"
+      ],
+      "product_exclude": [
+        "\\bbits?\\b",
+        "\\bwood\\b",
+        "\\bups\\b",
+        "\\bpower backup\\b",
+        "\\bstands?\\b",
+        "\\bholders?\\b",
+        "\\bmounts?\\b"
+      ]
+    },
+    "mixer": {
+      "label": "Mixer grinders & blenders",
+      "query_terms": [
+        "mixer",
+        "mixer grinder",
+        "grinder",
+        "blender",
+        "juicer"
+      ],
+      "product_patterns": [
+        "\\bmixer grinders?\\b",
+        "\\bmixer\\b",
+        "\\bblenders?\\b",
+        "\\bjuicer\\b",
+        "\\bgrinder\\b"
+      ],
+      "product_exclude": [
+        "\\bjars?\\b",
+        "\\bcoupler\\b",
+        "\\bblade\\b",
+        "\\bgaskets?\\b",
+        "\\bcovers?\\b",
+        "\\bangle grinder\\b",
+        "\\bmakeup\\b",
+        "\\bbeauty blender\\b",
+        "\\bsponges?\\b",
+        "\\bcarbon brush\\b",
+        "\\bsound mixer\\b",
+        "\\baudio mixer\\b",
+        "\\bmixing console\\b"
+      ]
+    },
+    "trimmer": {
+      "label": "Trimmers & shavers",
+      "query_terms": [
+        "trimmer",
+        "trimmers",
+        "shaver",
+        "shavers",
+        "beard trimmer"
+      ],
+      "product_patterns": [
+        "\\btrimmers?\\b",
+        "\\bshavers?\\b",
+        "\\bgroomers?\\b",
+        "\\bclippers?\\b"
+      ],
+      "product_exclude": [
+        "\\bblades?\\b",
+        "\\bcombs?\\b",
+        "\\bchargers?\\b",
+        "\\badapters?\\b",
+        "\\bnail clippers?\\b",
+        "\\bcases?\\b",
+        "\\bpouch\\b",
+        "\\bpet\\b",
+        "\\bdog\\b",
+        "\\bgrass\\b",
+        "\\bhedge\\b"
+      ]
+    },
+    "pressure_cooker": {
+      "label": "Pressure cookers",
+      "query_terms": [
+        "pressure cooker",
+        "pressure cookers",
+        "cooker"
+      ],
+      "product_patterns": [
+        "\\bpressure cookers?\\b",
+        "\\bcookers?\\b"
+      ],
+      "product_exclude": [
+        "\\bgaskets?\\b",
+        "\\bwhistles?\\b",
+        "\\bsafety valve\\b",
+        "\\brice cooker\\b",
+        "\\binduction cooker\\b",
+        "\\bhandles?\\b",
+        "\\bseparators?\\b"
+      ]
+    },
+    "sunglasses": {
+      "label": "Sunglasses",
+      "query_terms": [
+        "sunglasses",
+        "sunglass",
+        "shades",
+        "aviators"
+      ],
+      "product_patterns": [
+        "\\bsunglass(es)?\\b",
+        "\\baviators?\\b",
+        "\\bwayfarer\\b"
+      ],
+      "product_exclude": [
+        "\\bcases?\\b",
+        "\\bchains?\\b",
+        "\\bstraps?\\b",
+        "\\bcleaning\\b",
+        "\\bholders?\\b"
+      ]
+    }
+  },
+  "profiles": {
+    "general": {
+      "label": "General shopper",
+      "description": "Balanced ranking: relevance first, then ratings and popularity.",
+      "keywords": [],
+      "prefers_low_price": false
+    },
+    "student": {
+      "label": "Student",
+      "description": "Favours portable, long-lasting and lower-priced options.",
+      "keywords": [
+        "lightweight",
+        "light weight",
+        "thin",
+        "slim",
+        "portable",
+        "battery",
+        "backlit",
+        "student",
+        "compact",
+        "foldable",
+        "durable",
+        "long lasting"
+      ],
+      "prefers_low_price": true
+    },
+    "ai_student": {
+      "label": "AI / ML builder",
+      "description": "Favours GPUs, high memory and fast processors for model training.",
+      "keywords": [
+        "rtx",
+        "nvidia",
+        "geforce",
+        "cuda",
+        "gpu",
+        "16gb",
+        "32gb",
+        "64gb",
+        "core i7",
+        "core i9",
+        "ryzen 7",
+        "ryzen 9",
+        "i7",
+        "i9",
+        "1tb ssd",
+        "512gb ssd",
+        "ddr5"
+      ],
+      "prefers_low_price": false
+    },
+    "gaming": {
+      "label": "Gamer",
+      "description": "Favours high refresh rates, dedicated graphics and gaming gear.",
+      "keywords": [
+        "gaming",
+        "gamer",
+        "rtx",
+        "gtx",
+        "geforce",
+        "radeon",
+        "144hz",
+        "165hz",
+        "240hz",
+        "rgb",
+        "mechanical",
+        "gamepad",
+        "controller",
+        "tuf",
+        "rog",
+        "legion",
+        "omen",
+        "victus",
+        "nitro",
+        "loq",
+        "predator",
+        "low latency"
+      ],
+      "prefers_low_price": false
+    }
+  }
+}

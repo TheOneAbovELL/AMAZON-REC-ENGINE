@@ -1,0 +1,318 @@
+{
+  "source": "Amazon India product listings export (data/raw/Amazon-Products.csv)",
+  "snapshot": "2023-03",
+  "built_at": "2026-10-11T11:45:03+00:00",
+  "catalog_sha256": "6a6d00a491713e20bac35d5b5f4e644f951b6e02047366f834749bb36e85a23d",
+  "source_rows": 551585,
+  "total_products": 33670,
+  "departments": [
+    {
+      "name": "TV, Audio & Cameras",
+      "count": 4163,
+      "sub_categories": [
+        "All Electronics",
+        "Camera Accessories",
+        "Cameras",
+        "Headphones",
+        "Home Audio & Theater",
+        "Home Entertainment Systems",
+        "Security Cameras",
+        "Speakers",
+        "Televisions"
+      ]
+    },
+    {
+      "name": "Accessories",
+      "count": 3678,
+      "sub_categories": [
+        "Bags & Luggage",
+        "Fashion & Silver Jewellery",
+        "Gold & Diamond Jewellery",
+        "Handbags & Clutches",
+        "Jewellery",
+        "Sunglasses",
+        "Watches"
+      ]
+    },
+    {
+      "name": "Home & Kitchen",
+      "count": 3571,
+      "sub_categories": [
+        "All Home & Kitchen",
+        "Bedroom Linen",
+        "Furniture",
+        "Garden & Outdoors",
+        "Home Décor",
+        "Home Furnishing",
+        "Home Improvement",
+        "Home Storage",
+        "Indoor Lighting",
+        "Kitchen & Dining",
+        "Kitchen Storage & Containers",
+        "Sewing & Craft Supplies"
+      ]
+    },
+    {
+      "name": "Women's Clothing",
+      "count": 3349,
+      "sub_categories": [
+        "Clothing",
+        "Ethnic Wear",
+        "Lingerie & Nightwear",
+        "Western Wear"
+      ]
+    },
+    {
+      "name": "Sports & Fitness",
+      "count": 2310,
+      "sub_categories": [
+        "All Exercise & Fitness",
+        "All Sports, Fitness & Outdoors",
+        "Badminton",
+        "Camping & Hiking",
+        "Cardio Equipment",
+        "Cricket",
+        "Cycling",
+        "Fitness Accessories",
+        "Football",
+        "Running",
+        "Strength Training",
+        "Yoga"
+      ]
+    },
+    {
+      "name": "Appliances",
+      "count": 2211,
+      "sub_categories": [
+        "Air Conditioners",
+        "All Appliances",
+        "Heating & Cooling Appliances",
+        "Kitchen & Home Appliances",
+        "Refrigerators",
+        "Washing Machines"
+      ]
+    },
+    {
+      "name": "Stores",
+      "count": 1863,
+      "sub_categories": [
+        "Amazon Fashion",
+        "Fashion Sales & Deals",
+        "Men's Fashion",
+        "Sportswear",
+        "The Designer Boutique",
+        "Women's Fashion"
+      ]
+    },
+    {
+      "name": "Beauty & Health",
+      "count": 1846,
+      "sub_categories": [
+        "Beauty & Grooming",
+        "Diet & Nutrition",
+        "Health & Personal Care",
+        "Household Supplies",
+        "Luxury Beauty",
+        "Make-up",
+        "Personal Care Appliances",
+        "Value Bazaar"
+      ]
+    },
+    {
+      "name": "Men's Shoes",
+      "count": 1591,
+      "sub_categories": [
+        "Casual Shoes",
+        "Formal Shoes",
+        "Sports Shoes"
+      ]
+    },
+    {
+      "name": "Men's Clothing",
+      "count": 1531,
+      "sub_categories": [
+        "Innerwear",
+        "Jeans",
+        "Shirts",
+        "T-shirts & Polos"
+      ]
+    },
+    {
+      "name": "Car & Motorbike",
+      "count": 1460,
+      "sub_categories": [
+        "All Car & Motorbike Products",
+        "Car & Bike Care",
+        "Car Accessories",
+        "Car Electronics",
+        "Car Parts",
+        "Motorbike Accessories & Parts"
+      ]
+    },
+    {
+      "name": "Toys & Baby Products",
+      "count": 1434,
+      "sub_categories": [
+        "Baby Bath, Skin & Grooming",
+        "Baby Products",
+        "Diapers",
+        "International Toy Store",
+        "Nursing & Feeding",
+        "STEM Toys Store",
+        "Strollers & Prams",
+        "Toys & Games",
+        "Toys Gifting Store"
+      ]
+    },
+    {
+      "name": "Kids' Fashion",
+      "count": 1101,
+      "sub_categories": [
+        "Baby Fashion",
+        "Kids' Clothing",
+        "Kids' Fashion",
+        "Kids' Shoes",
+        "Kids' Watches",
+        "School Bags"
+      ]
+    },
+    {
+      "name": "Industrial Supplies",
+      "count": 837,
+      "sub_categories": [
+        "Industrial & Scientific Supplies",
+        "Janitorial & Sanitation Supplies",
+        "Lab & Scientific",
+        "Test, Measure & Inspect"
+      ]
+    },
+    {
+      "name": "Grocery & Gourmet Foods",
+      "count": 834,
+      "sub_categories": [
+        "All Grocery & Gourmet Foods",
+        "Coffee, Tea & Beverages",
+        "Snack Foods"
+      ]
+    },
+    {
+      "name": "Bags & Luggage",
+      "count": 585,
+      "sub_categories": [
+        "Backpacks",
+        "Rucksacks",
+        "Suitcases & Trolley Bags",
+        "Travel Accessories",
+        "Travel Duffles",
+        "Wallets"
+      ]
+    },
+    {
+      "name": "Women's Shoes",
+      "count": 561,
+      "sub_categories": [
+        "Ballerinas",
+        "Fashion Sandals",
+        "Shoes"
+      ]
+    },
+    {
+      "name": "Pet Supplies",
+      "count": 500,
+      "sub_categories": [
+        "All Pet Supplies",
+        "Dog supplies"
+      ]
+    },
+    {
+      "name": "Music",
+      "count": 245,
+      "sub_categories": [
+        "Musical Instruments & Professional Audio"
+      ]
+    }
+  ],
+  "rating_histogram": {
+    "2.0": 9,
+    "2.5": 73,
+    "3.0": 980,
+    "3.5": 7279,
+    "4.0": 17721,
+    "4.5": 7437,
+    "5.0": 171
+  },
+  "price_bands": [
+    {
+      "label": "Under ₹500",
+      "count": 14918
+    },
+    {
+      "label": "₹500–2,000",
+      "count": 12453
+    },
+    {
+      "label": "₹2,000–10,000",
+      "count": 4581
+    },
+    {
+      "label": "₹10,000–50,000",
+      "count": 1551
+    },
+    {
+      "label": "₹50,000+",
+      "count": 167
+    }
+  ],
+  "top_brands": [
+    {
+      "name": "Amazon",
+      "count": 482
+    },
+    {
+      "name": "Puma",
+      "count": 318
+    },
+    {
+      "name": "Campus",
+      "count": 186
+    },
+    {
+      "name": "Yellow",
+      "count": 182
+    },
+    {
+      "name": "AmazonBasics",
+      "count": 172
+    },
+    {
+      "name": "BATA",
+      "count": 172
+    },
+    {
+      "name": "The",
+      "count": 154
+    },
+    {
+      "name": "Sparx",
+      "count": 141
+    },
+    {
+      "name": "Adidas",
+      "count": 134
+    },
+    {
+      "name": "Shining",
+      "count": 123
+    },
+    {
+      "name": "YouBella",
+      "count": 121
+    },
+    {
+      "name": "Jockey",
+      "count": 118
+    }
+  ],
+  "median_price": 599.0,
+  "median_rating": 4.0
+}

@@ -1,0 +1,22 @@
+# Full stack locally: semantic API + web app.  docker compose up --build  ->  http://localhost:3000
+services:
+  api:
+    build: .
+    environment:
+      ALLOWED_ORIGINS: ""
+      RATE_LIMIT_PER_MINUTE: "120"
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      BACKEND_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped

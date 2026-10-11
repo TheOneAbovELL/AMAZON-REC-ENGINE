@@ -1,17 +1,26 @@
 {
   "name": "amazon-rec-engine",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Production-ready Amazon-style Recommendation Engine with Vercel deployment support",
+  "description": "Hybrid semantic + keyword product recommendation engine over an Amazon India catalog snapshot",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .js,.mjs",
+    "test": "node --test \"tests/js/*.test.mjs\""
   },
   "dependencies": {
-    "next": "^14.2.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "next": "15.5.27",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "eslint": "8.57.1",
+    "eslint-config-next": "15.5.27"
   }
 }

@@ -1,150 +1,84 @@
-"""Preprocessing utilities for Amazon product and user data."""
+"""Cleaning helpers for the raw Amazon India product export (data/raw/*.csv)."""
 
+from __future__ import annotations
+
+import math
 import re
-import pandas as pd
+
+_ASIN_RE = re.compile(r"/(?:dp|gp/product)/([A-Z0-9]{10})", re.IGNORECASE)
+_NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
 
 
-def clean_price(price):
-    """Convert currency strings like '₹32,999' into clean float values."""
-    if pd.isna(price):
-        return 0.0
+def _is_missing(value) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, float) and math.isnan(value):
+        return True
+    return str(value).strip() == ""
 
-    # Remove currency symbols, commas, spaces, and any non-numeric characters except decimals
-    cleaned = re.sub(r"[^\d.]", "", str(price).strip())
+
+def clean_price(value) -> float | None:
+    """Parse a rupee string such as '₹32,999' into 32999.0. Returns None when absent."""
+    if _is_missing(value):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value) if value > 0 else None
+    match = _NUMBER_RE.search(str(value).replace(",", ""))
+    if not match:
+        return None
+    price = float(match.group())
+    return price if price > 0 else None
+
+
+def parse_count(value) -> int | None:
+    """Parse a rating count such as '2,255' into 2255. Returns None when absent."""
+    if _is_missing(value):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    match = _NUMBER_RE.search(str(value).replace(",", ""))
+    return int(float(match.group())) if match else None
+
+
+def parse_rating(value) -> float | None:
+    """Parse a star rating, keeping only values on the 0-5 scale."""
+    if _is_missing(value):
+        return None
     try:
-        return float(cleaned) if cleaned else 0.0
+        rating = float(str(value).strip())
     except ValueError:
-        return 0.0
+        return None
+    return rating if 0.0 < rating <= 5.0 else None
 
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean the raw dataset by handling missing values, types, and duplicates."""
-    df = df.copy()
-
-    # Drop explicit duplicates based on the user-product pairing
-    if "reviewerID" in df.columns and "asin" in df.columns:
-        df.drop_duplicates(subset=["reviewerID", "asin"], inplace=True)
-    else:
-        df.drop_duplicates(inplace=True)
-
-    # Standardize string fields to prevent concatenation crashes
-    text_cols = ["name", "main_category", "sub_category", "reviewText"]
-    for col in text_cols:
-        if col in df.columns:
-            df[col] = df[col].fillna("").astype(str).str.strip()
-
-    # Fix Prices using your clean_price helper
-    if "discount_price" in df.columns:
-        df["discount_price"] = df["discount_price"].apply(clean_price)
-    if "actual_price" in df.columns:
-        df["actual_price"] = df["actual_price"].apply(clean_price)
-
-    # Map Recommendation Metrics
-    if "overall" in df.columns:
-        df["rating"] = pd.to_numeric(df["overall"], errors="coerce").fillna(0.0)
-
-    if "no_of_ratings" in df.columns:
-        # Strip commas out of strings like '1,250 ratings' if present, then convert to numeric
-        cleaned_pop = (
-            df["no_of_ratings"]
-            .astype(str)
-            .str.replace(",", "", regex=False)
-            .str.extract(r"(\d+)")
-        )
-        df["popularity"] = pd.to_numeric(cleaned_pop[0], errors="coerce").fillna(
-            0
-        )
-    else:
-        df["popularity"] = 0
-
-    return df
+def extract_asin(url) -> str | None:
+    """Extract the 10-character ASIN from an Amazon product URL."""
+    if _is_missing(url):
+        return None
+    match = _ASIN_RE.search(str(url))
+    return match.group(1).upper() if match else None
 
 
-def aggregate_product_reviews(
-    df: pd.DataFrame,
-    max_reviews_per_product: int = 5,
-) -> pd.DataFrame:
-    """Aggregate review-level data into product-level product records."""
-    df = df.copy()
-
-    if "asin" not in df.columns:
-        return df
-
-    aggregation = {
-        "name": "first",
-        "main_category": "first",
-        "sub_category": "first",
-        "reviewText": lambda values: " ".join(
-            values.astype(str).head(max_reviews_per_product)
-        ),
-        "overall": "mean",
-        "no_of_ratings": "first",
-        "discount_price": "first",
-        "actual_price": "first",
-    }
-
-    available_columns = df.columns.tolist()
-    aggregation = {
-        key: agg
-        for key, agg in aggregation.items()
-        if key in available_columns
-    }
-
-    if "title" in available_columns:
-        aggregation["title"] = "first"
-    if "brand" in available_columns:
-        aggregation["brand"] = "first"
-    if "category" in available_columns and "main_category" not in available_columns:
-        aggregation["category"] = "first"
-
-    aggregated = (
-        df.groupby("asin")
-        .agg(aggregation)
-        .reset_index()
-    )
-
-    return aggregated
+REPLACEMENT_CHAR = "\N{REPLACEMENT CHARACTER}"
+_MOJIBAKE_MARKERS = ("â€", "Ã", "Â")  # 'â€', 'Ã', 'Â': UTF-8 read as cp1252
+_INVISIBLE_RE = re.compile("[​-‏⁠﻿\u0080-\u009f]")
 
 
-def create_combined_text(df):
-    df = df.copy()
+def repair_mojibake(text: str) -> str:
+    """Undo UTF-8 text that was decoded as cp1252 ('3050Â Ti', 'â€™'), when it round-trips cleanly."""
+    if not any(marker in text for marker in _MOJIBAKE_MARKERS):
+        return text
+    try:
+        return text.encode("cp1252").decode("utf-8")
+    except UnicodeError:
+        return text.replace("Â", " ")
 
-    if "name" in df.columns:
-        name = df["name"].fillna("").astype(str)
-    else:
-        name = df.get("title", "").astype(str)
 
-    if "main_category" in df.columns:
-        category = df["main_category"].fillna("").astype(str)
-    else:
-        category = df.get("category", "").astype(str)
-
-    if "sub_category" in df.columns:
-        subcategory = df["sub_category"].fillna("").astype(str)
-    else:
-        subcategory = ""
-
-    if "reviewText" in df.columns:
-        review = (
-            df["reviewText"]
-            .fillna("")
-            .astype(str)
-            .str[:300]
-        )
-    else:
-        review = (
-            df.get("description", "")
-            .astype(str)
-        )
-
-    df["combined_text"] = (
-        name
-        + " "
-        + category
-        + " "
-        + str(subcategory)
-        + " "
-        + review
-    )
-
-    return df
+def clean_text(value) -> str:
+    """Collapse whitespace and repair encoding damage present in the export."""
+    if _is_missing(value):
+        return ""
+    text = str(value).replace("D" + REPLACEMENT_CHAR + "cor", "D\N{LATIN SMALL LETTER E WITH ACUTE}cor")
+    text = repair_mojibake(text.replace(REPLACEMENT_CHAR, ""))
+    text = _INVISIBLE_RE.sub("", text).replace(" ", " ")
+    return re.sub(r"\s+", " ", text).strip()

@@ -1,0 +1,32 @@
+{
+ "source": "test fixture",
+ "snapshot": "2023-03",
+ "total_products": 32,
+ "departments": [
+  {
+   "name": "TV, Audio & Cameras",
+   "count": 26,
+   "sub_categories": [
+    "All Electronics",
+    "Headphones",
+    "Home Entertainment Systems",
+    "Speakers",
+    "Televisions"
+   ]
+  },
+  {
+   "name": "Accessories",
+   "count": 6,
+   "sub_categories": [
+    "Bags & Luggage",
+    "Ethnic Wear",
+    "Home Storage",
+    "Sports Shoes",
+    "T-shirts & Polos"
+   ]
+  }
+ ],
+ "rating_histogram": {},
+ "price_bands": [],
+ "top_brands": []
+}

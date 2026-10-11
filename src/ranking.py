@@ -1,154 +1,46 @@
-"""Ranking utilities for personalized product recommendations."""
+"""Ranking signals, each scaled to [0, 1], and the weighted final score.
 
-TRUSTED_BRANDS = {
-    "lenovo",
-    "asus",
-    "dell",
-    "hp",
-    "logitech",
-    "sony",
-    "jbl",
-    "acer",
-    "msi",
-    "samsung",
-    "lg",
-}
+Mirrored by lib/engine/ranking.mjs. Weights live in config/engine.json.
+"""
+
+from __future__ import annotations
+
+import math
+
+SIGNALS = ("relevance", "quality", "popularity", "deal", "profile")
 
 
-def compute_business_score(product, category_score=0.0):
-
-    score = 0.0
-
-    # --------------------------
-    # Rating Quality
-    # --------------------------
-
-    rating = float(
-        product.get("rating", 0.0) or 0.0
-    )
-
-    if rating >= 4.5:
-        score += 0.40
-
-    elif rating >= 4.0:
-        score += 0.25
-
-    # --------------------------
-    # Popularity
-    # --------------------------
-
-    popularity = float(
-        product.get("popularity", 0.0) or 0.0
-    )
-
-    if popularity >= 10000:
-        score += 0.30
-
-    elif popularity >= 1000:
-        score += 0.20
-
-    elif popularity >= 100:
-        score += 0.10
-
-    # --------------------------
-    # Trusted Brand
-    # --------------------------
-
-    product_name = str(
-        product.get("name", "")
-    ).lower()
-
-    if any(
-        brand in product_name
-        for brand in TRUSTED_BRANDS
-    ):
-        score += 0.20
-
-    # --------------------------
-    # Category Match
-    # --------------------------
-
-    score += (
-        0.10 *
-        float(category_score or 0.0)
-    )
-
-    return min(score, 1.0)
+def clip01(value: float) -> float:
+    return 0.0 if value < 0.0 else 1.0 if value > 1.0 else value
 
 
-def compute_score(
-    similarity,
-    rating,
-    popularity,
-    budget_score=0.0,
-    business_score=0.0,
-):
-
-    rating_norm = min(
-        max(float(rating or 0.0) / 5.0, 0.0),
-        1.0,
-    )
-
-    popularity_norm = min(
-        float(popularity or 0.0) / 10000.0,
-        1.0,
-    )
-
-    return (
-        0.45 * float(similarity or 0.0)
-        + 0.20 * rating_norm
-        + 0.15 * popularity_norm
-        + 0.10 * float(budget_score or 0.0)
-        + 0.10 * float(business_score or 0.0)
-    )
+def quality_signal(rating: float, count: float, cfg: dict) -> float:
+    """Bayesian-averaged rating: few ratings pull the score toward the prior."""
+    prior_rating, prior_count = cfg["prior_rating"], cfg["prior_count"]
+    smoothed = (count * rating + prior_count * prior_rating) / (count + prior_count)
+    return clip01((smoothed - cfg["floor"]) / (cfg["ceiling"] - cfg["floor"]))
 
 
-def rank_products(products):
+def popularity_signal(count: float, cfg: dict) -> float:
+    return clip01(math.log1p(max(count, 0.0)) / math.log1p(cfg["reference_count"]))
 
-    ranked_products = []
 
-    for product in products:
+def deal_signal(price: float, list_price: float) -> float:
+    if list_price <= 0 or price >= list_price:
+        return 0.0
+    return clip01((list_price - price) / list_price)
 
-        business_score = compute_business_score(
-            product,
-            category_score=product.get(
-                "category_score",
-                0.0,
-            ),
-        )
 
-        product["business_score"] = (
-            business_score
-        )
+def dense_relevance(cosine: float, cfg: dict) -> float:
+    """Map raw cosine similarity onto [0, 1] using the calibrated floor/ceiling."""
+    return clip01((cosine - cfg["dense_floor"]) / (cfg["dense_ceiling"] - cfg["dense_floor"]))
 
-        final_score = compute_score(
-            similarity=product.get(
-                "similarity",
-                0.0,
-            ),
-            rating=product.get(
-                "rating",
-                0.0,
-            ),
-            popularity=product.get(
-                "popularity",
-                0.0,
-            ),
-            budget_score=product.get(
-                "budget_score",
-                0.0,
-            ),
-            business_score=business_score,
-        )
 
-        product["score"] = float(final_score)
-        product["final_score"] = float(final_score)
+def combine(signals: dict[str, float], weights: dict[str, float]) -> tuple[float, dict[str, float]]:
+    contributions = {name: weights[name] * signals[name] for name in SIGNALS}
+    return sum(contributions[name] for name in SIGNALS), contributions
 
-        ranked_products.append(product)
 
-    ranked_products.sort(
-        key=lambda x: x["final_score"],
-        reverse=True,
-    )
-
-    return ranked_products
+def sort_key(score: float, rating_count: float, asin: str) -> tuple:
+    """Deterministic ordering shared with the JS engine: score, then rating count, then ASIN."""
+    return (-round(score, 10), -rating_count, asin)

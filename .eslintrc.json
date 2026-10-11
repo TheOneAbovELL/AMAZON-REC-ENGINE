@@ -1,0 +1,4 @@
+{
+  "extends": "next/core-web-vitals",
+  "ignorePatterns": ["venv/", "data/", "models/", ".next/"]
+}

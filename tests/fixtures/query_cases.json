@@ -1,0 +1,306 @@
+[
+ {
+  "query": "Need laptop for AI under 90k",
+  "budget": {
+   "min": null,
+   "max": 90000
+  },
+  "intent": "laptop",
+  "terms": [
+   "laptop",
+   "ai"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "RTX 4060 gaming laptop",
+  "budget": null,
+  "intent": "laptop",
+  "terms": [
+   "rtx",
+   "4060",
+   "gaming",
+   "laptop"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "i5 12th gen laptop 50k",
+  "budget": {
+   "min": null,
+   "max": 50000
+  },
+  "intent": "laptop",
+  "terms": [
+   "i5",
+   "12th",
+   "gen",
+   "laptop"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "wireless earbuds under ₹2,000",
+  "budget": {
+   "min": null,
+   "max": 2000
+  },
+  "intent": "earbuds",
+  "terms": [
+   "wireless",
+   "earbud"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "earbuds below rs. 1500",
+  "budget": {
+   "min": null,
+   "max": 1500
+  },
+  "intent": "earbuds",
+  "terms": [
+   "earbud"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "smart watch rs 3000",
+  "budget": {
+   "min": null,
+   "max": 3000
+  },
+  "intent": "smartwatch",
+  "terms": [
+   "smartwatch"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "gaming laptop between 60k and 1 lakh",
+  "budget": {
+   "min": 60000,
+   "max": 100000
+  },
+  "intent": "laptop",
+  "terms": [
+   "gaming",
+   "laptop"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "phone around 15000",
+  "budget": {
+   "min": 12000,
+   "max": 18000
+  },
+  "intent": "smartphone",
+  "terms": [
+   "phone"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "kurti above 500",
+  "budget": {
+   "min": 500,
+   "max": null
+  },
+  "intent": "kurta",
+  "terms": [
+   "kurti"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "tv under 2 lakh",
+  "budget": {
+   "min": null,
+   "max": 200000
+  },
+  "intent": "television",
+  "terms": [
+   "tv"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "over 50 inch tv",
+  "budget": null,
+  "intent": "television",
+  "terms": [
+   "over",
+   "50inch",
+   "tv"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "1.5 ton split ac under 40000",
+  "budget": {
+   "min": null,
+   "max": 40000
+  },
+  "intent": "air_conditioner",
+  "terms": [
+   "1",
+   "5",
+   "ton",
+   "air",
+   "conditioner"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "32 inch monitor under 5 years warranty",
+  "budget": null,
+  "intent": "monitor",
+  "terms": [
+   "32inch",
+   "monitor",
+   "5",
+   "year",
+   "warranty"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "headphones under 50",
+  "budget": {
+   "min": null,
+   "max": 50
+  },
+  "intent": "headphones",
+  "terms": [
+   "headphone"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "laptop stand",
+  "budget": null,
+  "intent": null,
+  "terms": [
+   "laptop",
+   "stand"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "mobile holder for bike",
+  "budget": null,
+  "intent": null,
+  "terms": [
+   "mobile",
+   "holder",
+   "bike"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "gaming mouse pad",
+  "budget": null,
+  "intent": null,
+  "terms": [
+   "gaming",
+   "mouse",
+   "pad"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "laptop bag",
+  "budget": null,
+  "intent": "backpack",
+  "terms": [
+   "laptop",
+   "bag"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "cheap t-shirts for men",
+  "budget": null,
+  "intent": "tshirt",
+  "terms": [
+   "tshirt",
+   "men"
+  ],
+  "prefers_low_price": true
+ },
+ {
+  "query": "affordable bluetooth speaker",
+  "budget": null,
+  "intent": "speaker",
+  "terms": [
+   "bluetooth",
+   "speaker"
+  ],
+  "prefers_low_price": true
+ },
+ {
+  "query": "Sony WH-1000XM4",
+  "budget": null,
+  "intent": null,
+  "terms": [
+   "sony",
+   "wh",
+   "1000xm4"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "noise cancelling headphones for travel",
+  "budget": null,
+  "intent": "headphones",
+  "terms": [
+   "noise",
+   "cancelling",
+   "headphone",
+   "travel"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "smartwatch",
+  "budget": null,
+  "intent": "smartwatch",
+  "terms": [
+   "smartwatch"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "watch for men",
+  "budget": null,
+  "intent": "watch",
+  "terms": [
+   "watch",
+   "men"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "running shoes size 9",
+  "budget": null,
+  "intent": "shoes",
+  "terms": [
+   "running",
+   "shoe",
+   "size",
+   "9"
+  ],
+  "prefers_low_price": false
+ },
+ {
+  "query": "under 5000",
+  "budget": {
+   "min": null,
+   "max": 5000
+  },
+  "intent": null,
+  "terms": [],
+  "prefers_low_price": false
+ }
+]

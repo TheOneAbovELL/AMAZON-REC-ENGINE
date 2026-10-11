@@ -1,210 +1,94 @@
-import streamlit as st
-from pathlib import Path
+"""Streamlit analyst console: run queries against the Python engine and inspect every signal.
+
+    pip install -r requirements-dashboard.txt
+    streamlit run app.py
+
+The shopper-facing UI is the Next.js app (pages/); this console is for examining rankings.
+"""
+
+import json
 
 import pandas as pd
-from src.embeddings import generate_embeddings
-from src.preprocessing import clean_data, create_combined_text
-from src.recommender import RecommendationEngine
-from src.vector_store import build_index
-from analytics.visualization import (
-    plot_category_distribution,
-    plot_top_brands,
-    plot_rating_distribution,
-    plot_score_distribution,
-)
+import streamlit as st
+
+from src.config import load_settings
+from src.recommender import Filters, RecommendationEngine
 
 
-def build_sample_dataframe():
-    return pd.DataFrame(
-        [
-            {
-                "title": "Lenovo LOQ Gaming Laptop",
-                "description": "RTX 4060, 16GB RAM, 512GB SSD, excellent for AI workloads.",
-                "category": "Gaming Laptop",
-                "rating": 4.6,
-                "popularity": 1250,
-                "price": "89000",
-            },
-            {
-                "title": "ASUS VivoBook 15",
-                "description": "Intel i5, 8GB RAM, 256GB SSD, lightweight student laptop.",
-                "category": "Laptop",
-                "rating": 4.1,
-                "popularity": 980,
-                "price": "54999",
-            },
-            {
-                "title": "Dell Inspiron Business Laptop",
-                "description": "Core i7, 16GB RAM, 1TB HDD, suitable for productivity.",
-                "category": "Laptop",
-                "rating": 4.2,
-                "popularity": 760,
-                "price": "105000",
-            },
-            {
-                "title": "HP Pavilion Gaming Laptop",
-                "description": "GTX 1650, 16GB RAM, 512GB SSD, good entry-level gaming machine.",
-                "category": "Gaming Laptop",
-                "rating": 4.3,
-                "popularity": 640,
-                "price": "78000",
-            },
-            {
-                "title": "Sony Wireless Earbuds",
-                "description": "Noise-cancelling earbuds with long battery life and crisp sound.",
-                "category": "Earbuds",
-                "rating": 4.4,
-                "popularity": 1100,
-                "price": "5999",
-            },
-            {
-                "title": "Logitech Mechanical Keyboard",
-                "description": "RGB mechanical keyboard with tactile switches and durable design.",
-                "category": "Mechanical Keyboard",
-                "rating": 4.7,
-                "popularity": 800,
-                "price": "2999",
-            },
-            {
-                "title": "Dell UltraSharp Monitor",
-                "description": "27-inch monitor built for coding and professional workflows.",
-                "category": "Monitor",
-                "rating": 4.5,
-                "popularity": 900,
-                "price": "34999",
-            },
-            {
-                "title": "ASUS Zephyrus Deep Learning Laptop",
-                "description": "RTX 4080, 32GB RAM, 1TB SSD, designed for deep learning and AI.",
-                "category": "Laptop",
-                "rating": 4.8,
-                "popularity": 1300,
-                "price": "150000",
-            },
-        ]
-    )
+@st.cache_resource(show_spinner="Loading catalog and embedding model…")
+def load_engine() -> RecommendationEngine:
+    return RecommendationEngine.load(load_settings())
 
 
-@st.cache_resource
-def load_engine():
-    engine = RecommendationEngine()
-    data_path = Path("data/processed/product_dataset.csv")
-    if not data_path.exists():
-        data_path = Path("data/meta_Electronics.json")
-    models_dir = Path("models")
-    models_dir.mkdir(parents=True, exist_ok=True)
-
-    if data_path.exists():
-        if str(data_path).endswith(".csv"):
-            df = pd.read_csv(data_path)
-        else:
-            df = pd.read_json(data_path, lines=True)
-        df = clean_data(df)
-        df = create_combined_text(df)
-        engine.df = df
-
-        embeddings_path = models_dir / "product_embeddings.npy"
-        index_path = models_dir / "faiss.index"
-
-        if embeddings_path.exists() and index_path.exists():
-            import numpy as np
-            import faiss
-
-            engine.embeddings = np.load(str(embeddings_path))
-            engine.index = faiss.read_index(str(index_path))
-        else:
-            embeddings = generate_embeddings(df["combined_text"].tolist())
-            index = build_index(embeddings)
-            engine.embeddings = embeddings
-            engine.index = index
-            import numpy as np
-            import faiss
-
-            np.save(str(embeddings_path), embeddings)
-            faiss.write_index(index, str(index_path))
-    else:
-        df = build_sample_dataframe()
-        df = clean_data(df)
-        df = create_combined_text(df)
-        embeddings = generate_embeddings(df["combined_text"].tolist())
-        index = build_index(embeddings)
-        engine.df = df
-        engine.embeddings = embeddings
-        engine.index = index
-
-    return engine
+@st.cache_data
+def load_meta() -> dict:
+    with open(load_settings().catalog_meta_path, encoding="utf-8") as handle:
+        return json.load(handle)
 
 
-def main():
-    st.set_page_config(page_title="Amazon-Style Recommendation Engine", layout="wide")
-    st.title("Amazon-Style Recommendation Engine")
-    st.markdown("---")
-
+def main() -> None:
+    st.set_page_config(page_title="Recommendation engine console", layout="wide")
     engine = load_engine()
-    user_profile = st.sidebar.selectbox(
-        "User Profile",
-        ["general", "gaming", "student", "ai_student"],
-        index=3,
+    meta = load_meta()
+    status = engine.status()
+
+    st.title("Recommendation engine console")
+    st.caption(
+        f"{status['products']:,} products · snapshot {meta.get('snapshot')} · mode **{status['mode']}**"
+        + (f" ({status['model']})" if status["model"] else "")
     )
-    query = st.sidebar.text_input("Query", "Need laptop for AI under 90k")
-    st.sidebar.markdown("---")
-    st.sidebar.write("Select a user profile and enter a product search query, then click Recommend.")
+    if status["notice"]:
+        st.warning(status["notice"])
 
-    recommendation_area, analytics_area = st.columns([2, 1])
+    with st.sidebar:
+        profiles = engine.profiles()
+        profile = st.selectbox("Shopper profile", list(profiles), format_func=lambda p: profiles[p]["label"])
+        departments = ["All"] + [d["name"] for d in meta["departments"]]
+        department = st.selectbox("Department", departments)
+        max_price = st.number_input("Max price (₹, 0 = none)", min_value=0, step=500)
+        min_rating = st.slider("Minimum rating", 0.0, 5.0, 0.0, 0.5)
+        top_k = st.slider("Results", 5, 30, 10)
+        use_dense = st.checkbox("Use semantic retrieval", value=engine.dense is not None, disabled=engine.dense is None)
 
-    with recommendation_area:
-        st.subheader("Recommendations")
-        if st.button("Recommend") and query.strip():
-            recommendations = engine.recommend(
-                query=query,
-                user_type=user_profile,
-                top_k=5,
-                log_path="logs/recommendation_logs.csv",
-            )
-            if not recommendations:
-                st.warning("No recommendations could be generated for this query.")
-            for idx, product in enumerate(recommendations, start=1):
-                title = product.get(
-                    "title",
-                    product.get(
-                        "name",
-                        "Unknown Product"
-                        )
-                )
-                with st.expander(f"{idx}. {title}"):
-                    st.markdown(f"### {title}")
-                    st.write(f"⭐ Rating: {product.get('rating', 'N/A')}")
-                    st.write(f"💰 Price: ₹{product.get('price', 'N/A')}")
-                    st.write(
-                        f"🎯 Recommendation Score: "
-                        f"{product.get('personalized_score', product.get('score', 0)):.4f}"
-                        )
-                    st.write(f"👤 User Profile: {user_profile}")
-                    st.markdown("### Why Recommended?")
-                    st.write(
-                        product.get(
-                            "explanation",
-                            "Recommended because it is highly relevant to your query."
-                            )
-                        
-                        )
-    with analytics_area:
-        st.subheader("Analytics")
-        st.pyplot(plot_category_distribution(engine.df))
-        st.pyplot(plot_top_brands(engine.df))
-        recommendations = []
-        if query.strip():
-            recommendations = engine.recommend(
-                query=query,
-                user_type=user_profile,
-                top_k=10,
-                log_path=None,
-            )
-        st.pyplot(plot_score_distribution(recommendations))
-        st.pyplot(plot_rating_distribution(engine.df))
+    query = st.text_input("Query", "noise cancelling headphones")
+    if not query.strip():
+        st.info("Enter a query.")
+        return
 
-    st.markdown("---")
-    st.write("Built-in analytics and recommendation cards help reviewers verify relevance, ordering, personalization, and explanation quality.")
+    filters = Filters(
+        department=None if department == "All" else department,
+        max_price=float(max_price) or None,
+        min_rating=min_rating or None,
+    )
+    response = engine.recommend(query, profile, top_k, filters, use_dense=use_dense)
+    st.json(response["interpretation"], expanded=False)
+    st.write(f"{len(response['results'])} of {response['total_matches']} relevant products in {response['took_ms']} ms")
+    if response.get("message"):
+        st.info(response["message"])
+    if not response["results"]:
+        return
+
+    rows = [
+        {
+            "rank": i,
+            "name": r["name"],
+            "price": r["price"],
+            "rating": r["rating"],
+            "ratings": r["rating_count"],
+            "score": r["score"],
+            **{f"sig_{k}": v for k, v in r["signals"].items()},
+        }
+        for i, r in enumerate(response["results"], start=1)
+    ]
+    table = pd.DataFrame(rows).set_index("rank")
+    st.dataframe(table, width="stretch")
+    st.subheader("Score contributions")
+    st.bar_chart(pd.DataFrame([r["contributions"] for r in response["results"]], index=table.index))
+
+    for i, r in enumerate(response["results"], start=1):
+        with st.expander(f"{i}. {r['name']}"):
+            st.write("\n".join(f"- {reason}" for reason in r["reasons"]))
+            st.markdown(f"[View on amazon.in]({r['product_url']})")
 
 
 if __name__ == "__main__":

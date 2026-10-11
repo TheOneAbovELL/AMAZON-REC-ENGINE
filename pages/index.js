@@ -1,600 +1,420 @@
-import { useState, useEffect } from "react";
 import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import CatalogInsights from "../components/CatalogInsights";
+import ResultCard from "../components/ResultCard";
+import SimilarDrawer from "../components/SimilarDrawer";
+import { formatInr } from "../lib/format.mjs";
+import styles from "../styles/app.module.css";
+
+const DEFAULT_QUERY = "laptop for AI under 90k";
+const DEFAULT_PROFILE = "ai_student";
+const SAMPLE_QUERIES = [
+  "laptop for AI under 90k",
+  "wireless earbuds under 2000",
+  "43 inch smart tv",
+  "noise cancelling headphones",
+  "running shoes for men",
+  "gaming mouse",
+  "cotton kurti under 800",
+  "pressure cooker 5 litre",
+];
+const PROFILE_ORDER = ["general", "student", "ai_student", "gaming"];
+const RATING_OPTIONS = [
+  ["", "Any rating"],
+  ["3.5", "3.5★ & up"],
+  ["4", "4★ & up"],
+  ["4.5", "4.5★ & up"],
+];
+
+const toNumberOrNull = (v) => (v === "" || v === undefined || v === null || Number.isNaN(Number(v)) ? null : Number(v));
+
+function EngineBadge({ health }) {
+  if (!health) return <span className={styles.badge}>Checking engine…</span>;
+  const hybrid = health.mode === "hybrid";
+  return (
+    <span className={`${styles.badge} ${hybrid ? styles.badgeGood : ""}`} title={hybrid ? health.backend?.model || "" : ""}>
+      <span className={styles.dot} aria-hidden="true" />
+      {hybrid ? "Semantic + keyword engine" : "Keyword engine"}
+    </span>
+  );
+}
+
+function Interpretation({ data, profiles }) {
+  const { interpretation: it, filters } = data;
+  const chips = [];
+  if (it.intent) chips.push(["Looking for", it.intent.label]);
+  if (filters.max_price != null || filters.min_price != null) {
+    const lo = filters.min_price != null ? formatInr(filters.min_price) : null;
+    const hi = filters.max_price != null ? formatInr(filters.max_price) : null;
+    chips.push(["Price", lo && hi ? `${lo} – ${hi}` : hi ? `up to ${hi}` : `from ${lo}`]);
+  }
+  if (filters.department) chips.push(["Department", filters.department]);
+  if (filters.min_rating != null) chips.push(["Rating", `${filters.min_rating}★ & up`]);
+  if (it.terms.length) chips.push(["Keywords", it.terms.join(", ")]);
+  if (it.prefers_low_price) chips.push(["Preference", "lower prices"]);
+  chips.push(["Profile", profiles?.[data.profile]?.label || data.profile]);
+  return (
+    <ul className={styles.chips} aria-label="How your search was interpreted">
+      {chips.map(([k, v]) => (
+        <li key={k} className={styles.chip}>
+          <span className={styles.chipKey}>{k}</span> {v}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SkeletonList() {
+  return (
+    <ol className={styles.results} aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <li key={i} className={`${styles.card} ${styles.skeleton}`}>
+          <div className={styles.skeletonBlock} style={{ width: 132, height: 132 }} />
+          <div className={styles.cardBody}>
+            <div className={styles.skeletonBlock} style={{ width: "40%", height: 12 }} />
+            <div className={styles.skeletonBlock} style={{ width: "90%", height: 18, marginTop: 10 }} />
+            <div className={styles.skeletonBlock} style={{ width: "60%", height: 14, marginTop: 10 }} />
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 export default function Home() {
-  const [query, setQuery] = useState("Need laptop for AI under 90k");
-  const [userProfile, setUserProfile] = useState("ai_student");
-  const [loading, setLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
-  const [source, setSource] = useState(null);
-  const [expandedIndex, setExpandedIndex] = useState(0);
-  const [error, setError] = useState(null);
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [profile, setProfile] = useState(DEFAULT_PROFILE);
+  const [department, setDepartment] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minRating, setMinRating] = useState("");
+  const [result, setResult] = useState({ status: "idle", data: null, error: null });
+  const [catalog, setCatalog] = useState(null);
+  const [health, setHealth] = useState(null);
+  const [similarFor, setSimilarFor] = useState(null);
+  const inflight = useRef(null);
+  const similarTrigger = useRef(null);
+  const openSimilar = useCallback((item, trigger) => {
+    similarTrigger.current = trigger ?? null;
+    setSimilarFor(item);
+  }, []);
+  const closeSimilar = useCallback(() => {
+    setSimilarFor(null);
+    // Return focus to the button that opened the drawer (Safari does not focus buttons on click).
+    similarTrigger.current?.focus();
+  }, []);
+  const started = useRef(false);
 
-  const sampleQueries = [
-    "Need laptop for AI under 90k",
-    "gaming laptop under 90000",
-    "wireless earbuds",
-    "mechanical keyboard",
-    "monitor for coding",
-    "TP-Link router",
-  ];
+  const search = useCallback(
+    async (params) => {
+      const q = params.query.trim();
+      if (!q) return;
+      inflight.current?.abort();
+      const controller = new AbortController();
+      inflight.current = controller;
+      setResult((prev) => ({ status: "loading", data: prev.data, error: null }));
 
-  // Fetch initial analytics and trigger default search
+      const urlQuery = { q, profile: params.profile };
+      if (params.department) urlQuery.dept = params.department;
+      if (params.maxPrice) urlQuery.max = params.maxPrice;
+      if (params.minRating) urlQuery.rating = params.minRating;
+      router.replace({ pathname: "/", query: urlQuery }, undefined, { shallow: true, scroll: false });
+
+      try {
+        const res = await fetch("/api/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            query: q,
+            profile: params.profile,
+            top_k: 12,
+            filters: {
+              department: params.department || null,
+              max_price: toNumberOrNull(params.maxPrice),
+              min_rating: toNumberOrNull(params.minRating),
+            },
+          }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || `Request failed (${res.status}).`);
+        setResult({ status: "ready", data: body, error: null });
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        setResult({ status: "error", data: null, error: err.message || "Something went wrong." });
+      }
+    },
+    [router],
+  );
+
+  // Initial load: restore a shared URL's search, or show the default example.
   useEffect(() => {
-    fetchAnalytics();
-    handleSearch("Need laptop for AI under 90k", "ai_student");
+    if (!router.isReady || started.current) return;
+    started.current = true;
+    const q = typeof router.query.q === "string" ? router.query.q : DEFAULT_QUERY;
+    const p = typeof router.query.profile === "string" ? router.query.profile : router.query.q ? "general" : DEFAULT_PROFILE;
+    const params = {
+      query: q,
+      profile: PROFILE_ORDER.includes(p) ? p : "general",
+      department: typeof router.query.dept === "string" ? router.query.dept : "",
+      maxPrice: typeof router.query.max === "string" ? router.query.max : "",
+      minRating: typeof router.query.rating === "string" ? router.query.rating : "",
+    };
+    setQuery(params.query);
+    setProfile(params.profile);
+    setDepartment(params.department);
+    setMaxPrice(params.maxPrice);
+    setMinRating(params.minRating);
+    search(params);
+  }, [router.isReady, router.query, search]);
+
+  useEffect(() => {
+    fetch("/api/catalog")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setCatalog)
+      .catch(() => setCatalog(null));
+    fetch("/api/health")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setHealth)
+      .catch(() => setHealth(null));
   }, []);
 
-  const fetchAnalytics = async () => {
-    try {
-      const res = await fetch("/api/analytics");
-      if (res.ok) {
-        const data = await res.json();
-        setAnalytics(data);
-      }
-    } catch (e) {
-      console.error("Failed to load analytics:", e);
-    }
+  const current = { query, profile, department, maxPrice, minRating };
+  const rerun = (changes) => {
+    const next = { ...current, ...changes };
+    if (next.query.trim()) search(next);
+  };
+  const onSubmit = (e) => {
+    e.preventDefault();
+    search(current);
   };
 
-  const handleSearch = async (searchQuery = query, profile = userProfile) => {
-    if (!searchQuery.trim()) return;
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/recommend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: searchQuery,
-          user_type: profile,
-          top_k: 5,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Failed to fetch recommendations");
-      }
-
-      const data = await res.json();
-      setRecommendations(data.recommendations || []);
-      setSource(data.source || "serverless");
-      setExpandedIndex(0);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPrice = (price) => {
-    if (price === null || price === undefined) return "N/A";
-    const num = parseFloat(price);
-    return isNaN(num) ? price : `₹${num.toLocaleString("en-IN")}`;
-  };
+  const data = result.data;
+  const profiles = catalog?.profiles;
+  const loading = result.status === "loading";
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <>
       <Head>
-        <title>Amazon-Style Recommendation Engine</title>
+        <title>Aisle — explainable product recommendations</title>
         <meta
           name="description"
-          content="End-to-end Machine Learning Recommendation System inspired by modern e-commerce platforms"
+          content="Search a 33k-product Amazon India catalog snapshot with hybrid semantic + keyword ranking, shopper profiles and per-result explanations."
         />
-        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </Head>
 
-      {/* Top Navbar */}
-      <header
-        style={{
-          backgroundColor: "#131921",
-          color: "#ffffff",
-          padding: "12px 24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "12px",
-          borderBottom: "4px solid #ff9900",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "22px", fontWeight: "800", color: "#ff9900", letterSpacing: "-0.5px" }}>
-            amazon
-          </span>
-          <span
-            style={{
-              fontSize: "14px",
-              padding: "4px 8px",
-              background: "#232f3e",
-              borderRadius: "4px",
-              border: "1px solid #3a4553",
-              color: "#d5d9d9",
-            }}
-          >
-            Recommendation Engine
-          </span>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              background: source === "external-ml-backend" ? "#1e4620" : "#2a394a",
-              color: source === "external-ml-backend" ? "#7ee787" : "#79c0ff",
-              padding: "4px 10px",
-              borderRadius: "12px",
-              border: `1px solid ${source === "external-ml-backend" ? "#2ea043" : "#388bfd"}`,
-            }}
-          >
-            <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: source === "external-ml-backend" ? "#3fb950" : "#58a6ff",
-              }}
-            />
-            {source === "external-ml-backend" ? "External ML Backend Connected" : "Vercel Serverless Ready"}
-          </span>
+      <header className={styles.topbar}>
+        <div className={styles.topbarInner}>
+          <Link href="/" className={styles.wordmark} aria-label="Aisle home">
+            <span className={styles.wordmarkMark} aria-hidden="true">
+              ▤
+            </span>
+            Aisle
+          </Link>
+          <EngineBadge health={health} />
         </div>
       </header>
 
-      {/* Main Container */}
-      <div
-        style={{
-          maxWidth: "1440px",
-          margin: "0 auto",
-          width: "100%",
-          padding: "24px 20px",
-          display: "grid",
-          gridTemplateColumns: "320px 1fr",
-          gap: "24px",
-          flex: 1,
-        }}
-        className="layout-grid"
-      >
-        {/* Sidebar Controls (Streamlit sidebar equivalent) */}
-        <aside
-          style={{
-            background: "#ffffff",
-            padding: "20px",
-            borderRadius: "8px",
-            border: "1px solid #d5d9d9",
-            height: "fit-content",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-          }}
-        >
-          <h2 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "16px", color: "#0f1111" }}>
-            Search & Profile Filters
-          </h2>
+      <main className={styles.page}>
+        <section className={styles.hero}>
+          <h1>Find the right product — and see why it ranks.</h1>
+          <p className={styles.lede}>
+            Describe what you need in plain words, budgets included. Results blend meaning, keywords, ratings and your
+            shopper profile, and every one comes with its reasons.
+          </p>
 
-          <div style={{ marginBottom: "18px" }}>
-            <label
-              htmlFor="user-profile-select"
-              style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "6px", color: "#565959" }}
-            >
-              User Profile
-            </label>
-            <select
-              id="user-profile-select"
-              value={userProfile}
-              onChange={(e) => setUserProfile(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                border: "1px solid #888c8c",
-                fontSize: "14px",
-                backgroundColor: "#f8f9fa",
-                cursor: "pointer",
-              }}
-            >
-              <option value="ai_student">AI / ML Student (Heavy Compute)</option>
-              <option value="gaming">Gaming Enthusiast (GPU Focus)</option>
-              <option value="student">Student (Budget & Battery)</option>
-              <option value="general">General Shopper (Balanced)</option>
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "18px" }}>
-            <label
-              htmlFor="product-query-input"
-              style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "6px", color: "#565959" }}
-            >
-              Product Search Query
+          <form role="search" className={styles.searchForm} onSubmit={onSubmit}>
+            <label htmlFor="query" className="visually-hidden">
+              What are you looking for?
             </label>
             <input
-              id="product-query-input"
-              type="text"
+              id="query"
+              className={styles.searchInput}
+              type="search"
               value={query}
+              maxLength={200}
+              autoComplete="off"
+              placeholder="e.g. wireless earbuds under 2000"
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="e.g. Need laptop for AI under 90k"
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                borderRadius: "6px",
-                border: "1px solid #888c8c",
-                fontSize: "14px",
-                outline: "none",
-              }}
             />
-          </div>
+            <button type="submit" className={styles.primaryButton} disabled={!query.trim()}>
+              Search
+            </button>
+          </form>
 
-          <button
-            onClick={() => handleSearch()}
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#ffd814",
-              border: "1px solid #fcd200",
-              borderRadius: "20px",
-              fontWeight: "600",
-              fontSize: "14px",
-              color: "#0f1111",
-              boxShadow: "0 2px 5px rgba(213,217,217,.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-            }}
-          >
-            {loading ? "Computing Recommendations..." : "Recommend"}
-          </button>
+          <div className={styles.controls}>
+            <fieldset className={styles.segmented}>
+              <legend className={styles.controlLabel}>Shopper profile</legend>
+              <div className={styles.segmentedOptions}>
+                {PROFILE_ORDER.map((id) => (
+                  <label key={id} className={styles.segment} title={profiles?.[id]?.description}>
+                    <input
+                      type="radio"
+                      name="profile"
+                      value={id}
+                      checked={profile === id}
+                      onChange={() => {
+                        setProfile(id);
+                        rerun({ profile: id });
+                      }}
+                    />
+                    <span>{profiles?.[id]?.label || id}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
-          <hr style={{ border: "none", borderTop: "1px solid #e7e7e7", margin: "20px 0" }} />
-
-          <div style={{ fontSize: "13px", color: "#565959" }}>
-            <span style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>Try Sample Queries:</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              {sampleQueries.map((sq, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    setQuery(sq);
-                    handleSearch(sq, userProfile);
-                  }}
-                  style={{
-                    textAlign: "left",
-                    padding: "6px 10px",
-                    background: "#f0f2f2",
-                    border: "1px solid #d5d9d9",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    color: "#0f1111",
-                    transition: "all 0.15s ease",
+            <div className={styles.filters}>
+              <label className={styles.filter}>
+                <span className={styles.controlLabel}>Department</span>
+                <select
+                  value={department}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                    rerun({ department: e.target.value });
                   }}
                 >
-                  🔍 {sq}
-                </button>
-              ))}
+                  <option value="">All departments</option>
+                  {catalog?.departments.map((d) => (
+                    <option key={d.name} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.filter}>
+                <span className={styles.controlLabel}>Max price (₹)</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  step="100"
+                  placeholder="No limit"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  onBlur={() => rerun({})}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), rerun({}))}
+                />
+              </label>
+              <label className={styles.filter}>
+                <span className={styles.controlLabel}>Rating</span>
+                <select
+                  value={minRating}
+                  onChange={(e) => {
+                    setMinRating(e.target.value);
+                    rerun({ minRating: e.target.value });
+                  }}
+                >
+                  {RATING_OPTIONS.map(([v, label]) => (
+                    <option key={v} value={v}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
-        </aside>
 
-        {/* Content Area: Recommendations (Left 2/3) + Analytics (Right 1/3) */}
-        <main style={{ display: "grid", gridTemplateColumns: "1.7fr 1fr", gap: "24px" }} className="content-grid">
-          {/* Recommendations Area */}
-          <section>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <div>
-                <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#0f1111" }}>
-                  Product Recommendations
-                </h1>
-                <p style={{ fontSize: "13px", color: "#565959", marginTop: "2px" }}>
-                  Showing top candidates retrieved via vector search & multi-signal ranking
-                </p>
-              </div>
-              <span style={{ fontSize: "13px", fontWeight: "600", color: "#565959" }}>
-                {recommendations.length} items
-              </span>
-            </div>
+          <div className={styles.samples}>
+            <span className={styles.controlLabel}>Try</span>
+            <ul>
+              {SAMPLE_QUERIES.map((s) => (
+                <li key={s}>
+                  <button
+                    type="button"
+                    className={styles.sample}
+                    onClick={() => {
+                      setQuery(s);
+                      search({ ...current, query: s });
+                    }}
+                  >
+                    {s}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
 
-            {error && (
-              <div
-                style={{
-                  background: "#fdf2f2",
-                  border: "1px solid #f98080",
-                  color: "#9b1c1c",
-                  padding: "12px 16px",
-                  borderRadius: "6px",
-                  marginBottom: "16px",
-                  fontSize: "14px",
-                }}
-              >
-                ⚠️ {error}
-              </div>
-            )}
-
-            {loading ? (
-              <div style={{ padding: "60px 20px", textAlign: "center", color: "#565959" }}>
-                <div style={{ fontSize: "28px", marginBottom: "12px" }}>⚙️</div>
-                <div style={{ fontSize: "16px", fontWeight: "600" }}>Executing Recommendation Pipeline...</div>
-                <div style={{ fontSize: "13px", marginTop: "4px" }}>
-                  Retrieving embeddings → FAISS index search → Multi-signal ranking → Profile boost
-                </div>
-              </div>
-            ) : recommendations.length === 0 ? (
-              <div style={{ background: "#ffffff", padding: "40px", borderRadius: "8px", textAlign: "center", border: "1px solid #d5d9d9" }}>
-                <p style={{ fontSize: "15px", color: "#565959" }}>No recommendations found for this query.</p>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                {recommendations.map((item, idx) => {
-                  const isExpanded = expandedIndex === idx;
-                  const score = item.personalized_score || item.score || 0;
-
-                  return (
-                    <article
-                      key={idx}
-                      style={{
-                        background: "#ffffff",
-                        borderRadius: "8px",
-                        border: "1px solid #d5d9d9",
-                        padding: "18px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                        transition: "border-color 0.15s ease",
-                      }}
-                    >
-                      {/* Product Header Row */}
-                      <div
-                        onClick={() => setExpandedIndex(isExpanded ? -1 : idx)}
-                        style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                            <span
-                              style={{
-                                background: "#232f3e",
-                                color: "#ffffff",
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                padding: "2px 8px",
-                                borderRadius: "12px",
-                              }}
-                            >
-                              Rank #{idx + 1}
-                            </span>
-                            <span style={{ fontSize: "12px", color: "#565959", textTransform: "capitalize" }}>
-                              {item.category} {item.sub_category ? `› ${item.sub_category}` : ""}
-                            </span>
-                          </div>
-                          <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#007185", lineHeight: 1.3 }}>
-                            {item.title || item.name}
-                          </h3>
-                        </div>
-
-                        <span style={{ fontSize: "18px", color: "#565959" }}>
-                          {isExpanded ? "▲" : "▼"}
-                        </span>
-                      </div>
-
-                      {/* Key Product Metrics */}
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "16px",
-                          alignItems: "center",
-                          marginTop: "12px",
-                          paddingTop: "12px",
-                          borderTop: "1px solid #f0f2f2",
-                          fontSize: "14px",
-                        }}
-                      >
-                        <div>
-                          <span style={{ color: "#ffa41c", fontWeight: "700" }}>★ {item.rating ? Number(item.rating).toFixed(1) : "N/A"}</span>
-                          <span style={{ color: "#565959", fontSize: "12px", marginLeft: "4px" }}>
-                            ({item.popularity ? Math.round(Number(item.popularity)).toLocaleString() : "100+"})
-                          </span>
-                        </div>
-
-                        <div style={{ fontWeight: "700", fontSize: "16px", color: "#0f1111" }}>
-                          {formatPrice(item.price)}
-                        </div>
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <span style={{ fontSize: "12px", color: "#565959" }}>Score:</span>
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              fontWeight: "700",
-                              color: "#0f1111",
-                              background: "#eef2f6",
-                              padding: "2px 8px",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            🎯 {(score).toFixed(4)}
-                          </span>
-                        </div>
-
-                        <div style={{ fontSize: "12px", color: "#565959", background: "#f8f9fa", padding: "2px 8px", borderRadius: "4px" }}>
-                          👤 {userProfile}
-                        </div>
-                      </div>
-
-                      {/* Expandable Explanation Area */}
-                      {isExpanded && (
-                        <div
-                          style={{
-                            marginTop: "14px",
-                            padding: "14px",
-                            background: "#fafafa",
-                            borderRadius: "6px",
-                            border: "1px solid #e7e7e7",
-                          }}
-                        >
-                          <h4 style={{ fontSize: "13px", fontWeight: "700", color: "#0f1111", marginBottom: "8px" }}>
-                            Why Recommended?
-                          </h4>
-                          <div style={{ fontSize: "13px", color: "#333", whiteSpace: "pre-line", lineHeight: 1.6 }}>
-                            {item.explanation}
-                          </div>
-                        </div>
-                      )}
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* Analytics Dashboard Area (Streamlit analytics equivalent) */}
-          <aside>
-            <div style={{ marginBottom: "16px" }}>
-              <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#0f1111" }}>
-                Catalog Analytics
-              </h2>
-              <p style={{ fontSize: "13px", color: "#565959", marginTop: "2px" }}>
-                Real-time distribution of 292 marketplace products
+        <div className={styles.layout}>
+          <section className={styles.resultsColumn} aria-labelledby="results-title" aria-busy={loading}>
+            <div className={styles.resultsHeader}>
+              <h2 id="results-title">Recommendations</h2>
+              <p className={styles.muted} role="status" aria-live="polite">
+                {loading
+                  ? "Ranking…"
+                  : data
+                    ? `${data.results.length} of ${data.total_matches.toLocaleString("en-IN")} relevant products · ${data.took_ms} ms`
+                    : ""}
               </p>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {/* Category Distribution */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  padding: "16px",
-                  borderRadius: "8px",
-                  border: "1px solid #d5d9d9",
-                }}
-              >
-                <h3 style={{ fontSize: "14px", fontWeight: "700", marginBottom: "12px", color: "#0f1111" }}>
-                  Product Category Distribution
-                </h3>
-                {analytics?.categories ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {Object.entries(analytics.categories).map(([cat, count]) => {
-                      const max = Math.max(...Object.values(analytics.categories));
-                      const pct = Math.round((count / max) * 100);
-                      return (
-                        <div key={cat} style={{ fontSize: "12px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
-                            <span style={{ fontWeight: "500", color: "#333", textTransform: "capitalize" }}>{cat}</span>
-                            <span style={{ color: "#565959" }}>{count}</span>
-                          </div>
-                          <div style={{ width: "100%", height: "8px", background: "#eef2f6", borderRadius: "4px", overflow: "hidden" }}>
-                            <div style={{ width: `${pct}%`, height: "100%", background: "#007185", borderRadius: "4px" }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p style={{ fontSize: "12px", color: "#565959" }}>Loading catalog categories...</p>
-                )}
-              </div>
+            {data?.engine?.notice && (
+              <p className={data.engine.degraded ? styles.noticeWarn : styles.notice}>{data.engine.notice}</p>
+            )}
+            {data && <Interpretation data={data} profiles={profiles} />}
 
-              {/* Top Brands */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  padding: "16px",
-                  borderRadius: "8px",
-                  border: "1px solid #d5d9d9",
-                }}
-              >
-                <h3 style={{ fontSize: "14px", fontWeight: "700", marginBottom: "12px", color: "#0f1111" }}>
-                  Top Brands
-                </h3>
-                {analytics?.top_brands ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {Object.entries(analytics.top_brands).map(([brand, count]) => {
-                      const max = Math.max(...Object.values(analytics.top_brands));
-                      const pct = Math.round((count / max) * 100);
-                      return (
-                        <div key={brand} style={{ fontSize: "12px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
-                            <span style={{ fontWeight: "500", color: "#333" }}>{brand}</span>
-                            <span style={{ color: "#565959" }}>{count}</span>
-                          </div>
-                          <div style={{ width: "100%", height: "8px", background: "#eef2f6", borderRadius: "4px", overflow: "hidden" }}>
-                            <div style={{ width: `${pct}%`, height: "100%", background: "#ff9900", borderRadius: "4px" }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p style={{ fontSize: "12px", color: "#565959" }}>Loading top brands...</p>
-                )}
+            {result.status === "error" && (
+              <div className={styles.errorBox} role="alert">
+                <p>{result.error}</p>
+                <button type="button" className={styles.secondaryButton} onClick={() => search(current)}>
+                  Try again
+                </button>
               </div>
+            )}
 
-              {/* Score Distribution for Current Query */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  padding: "16px",
-                  borderRadius: "8px",
-                  border: "1px solid #d5d9d9",
-                }}
-              >
-                <h3 style={{ fontSize: "14px", fontWeight: "700", marginBottom: "12px", color: "#0f1111" }}>
-                  Recommendation Score Distribution
-                </h3>
-                {recommendations.length > 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {recommendations.map((rec, i) => {
-                      const sc = rec.personalized_score || rec.score || 0;
-                      return (
-                        <div key={i} style={{ fontSize: "12px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
-                            <span style={{ color: "#565959" }}>Rank #{i + 1}</span>
-                            <span style={{ fontWeight: "600", color: "#0f1111" }}>{sc.toFixed(4)}</span>
-                          </div>
-                          <div style={{ width: "100%", height: "8px", background: "#eef2f6", borderRadius: "4px", overflow: "hidden" }}>
-                            <div style={{ width: `${Math.min(100, Math.round(sc * 100))}%`, height: "100%", background: "#4676FF", borderRadius: "4px" }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p style={{ fontSize: "12px", color: "#565959" }}>No recommendations yet</p>
-                )}
+            {loading && !data && <SkeletonList />}
+
+            {data && data.results.length === 0 && !loading && (
+              <div className={styles.empty}>
+                <p>{data.message || "Nothing in this catalog matches that search."}</p>
+                <p className={styles.muted}>
+                  Try fewer words, raise the budget, or clear the department and rating filters.
+                </p>
               </div>
-            </div>
+            )}
+
+            {data && data.results.length > 0 && (
+              <ol className={`${styles.results} ${loading ? styles.stale : ""}`}>
+                {data.results.map((item, i) => (
+                  <ResultCard key={`${data.query}-${item.asin}`} item={item} rank={i + 1} onShowSimilar={openSimilar} />
+                ))}
+              </ol>
+            )}
+          </section>
+
+          <aside className={styles.sideColumn}>
+            <CatalogInsights catalog={catalog} />
+            <section className={styles.howItWorks} aria-labelledby="how-title">
+              <h2 id="how-title">How ranking works</h2>
+              <ol>
+                <li>Your query is parsed for a product type, a budget and keywords.</li>
+                <li>Candidates come from keyword search (BM25), semantic vector search and the product type.</li>
+                <li>
+                  Each candidate is scored on relevance, Bayesian-smoothed rating, popularity, discount and profile fit.
+                </li>
+                <li>Colour and size variants are collapsed, and every result lists the signals behind it.</li>
+              </ol>
+            </section>
           </aside>
-        </main>
-      </div>
+        </div>
+      </main>
 
-      {/* Footer */}
-      <footer
-        style={{
-          background: "#232f3e",
-          color: "#d5d9d9",
-          padding: "20px 24px",
-          textAlign: "center",
-          fontSize: "13px",
-          marginTop: "auto",
-        }}
-      >
-        <p>Amazon-Style Personalized Product Recommendation Engine • Production-Ready Vercel Deployment</p>
-        <p style={{ color: "#888c8c", fontSize: "12px", marginTop: "4px" }}>
-          Built-in analytics and recommendation cards help reviewers verify relevance, ordering, personalization, and explanation quality.
+      <footer className={styles.footer}>
+        <p>
+          Independent portfolio project, not affiliated with Amazon. Product data comes from a public Amazon India listings
+          export ({catalog?.snapshot || "2023"}); prices, ratings and availability may have changed.
         </p>
       </footer>
 
-      {/* Responsive layout styles */}
-      <style jsx>{`
-        @media (max-width: 1024px) {
-          .layout-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .content-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </div>
+      {similarFor && (
+        <SimilarDrawer product={similarFor} onClose={closeSimilar} onPick={setSimilarFor} />
+      )}
+    </>
   );
 }

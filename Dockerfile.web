@@ -1,0 +1,27 @@
+# Next.js web app. Build context: repository root.
+#   docker build -f Dockerfile.web -t rec-engine-web .
+#   docker run -p 3000:3000 -e BACKEND_URL=http://api:8000 rec-engine-web
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY next.config.mjs .eslintrc.json ./
+COPY pages ./pages
+COPY components ./components
+COPY lib ./lib
+COPY styles ./styles
+COPY public ./public
+COPY config ./config
+COPY data/processed/catalog.json data/processed/catalog_meta.json ./data/processed/
+ENV NEXT_TELEMETRY_DISABLED=1 NEXT_OUTPUT=standalone
+RUN npm run build
+
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+COPY --from=build --chown=node /app/.next/standalone ./
+COPY --from=build --chown=node /app/.next/static ./.next/static
+COPY --from=build --chown=node /app/public ./public
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]

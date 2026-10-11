@@ -1,48 +1,89 @@
-# System Design
+# System design
 
-This document explains high-level design decisions for the Amazon-Style Recommendation Engine and why we selected key components.
+## Goal
 
-## Components
+Return the right *kind* of product, within the shopper's constraints, ranked by evidence the shopper
+can inspect. Three properties drive the design:
 
-- Embeddings: Sentence Transformers (all-MiniLM-L6-v2)
-- Vector Search: FAISS (IndexFlatL2)
-- Two-stage Retrieval: FAISS candidate retrieval + multi-signal ranking
-- Personalization: lightweight rule-based preference boosts
-- Explainability: LLM-generated human-readable explanations
+1. **Constraints are hard.** "Under 90k" means nothing over ₹90,000, and "laptop" does not mean "laptop bag".
+2. **Meaning and exact terms both matter.** Embeddings understand "something to keep my tea hot".
+   Keywords catch model numbers like "WH-1000XM4" that embeddings blur.
+3. **Every score is explainable.** Explanations are generated from the signals that produced the
+   ranking, so they cannot claim anything the ranker did not use.
 
-## Why Embeddings?
-Embeddings capture semantic relationships between text that go beyond keyword overlap. They allow the system to retrieve products that are conceptually relevant to a query even when exact keywords are missing.
+## Pipeline (`src/recommender.py`, mirrored by `lib/engine/engine.mjs`)
 
-## Why FAISS?
-FAISS is optimized for fast approximate nearest-neighbor search in high-dimensional embedding spaces. It provides high-throughput retrieval for production-style candidate generation and integrates well with NumPy arrays and persisted index files.
+```
+query ─► parse ─► hard filters ─► candidate pool ─► relevance ─► score ─► de-duplicate ─► explain
+```
 
-## Why Two-Stage Retrieval + Ranking?
-Ranking every product for every query is computationally expensive. The two-stage approach retrieves a small set of likely candidates using vector search, then applies a richer, computationally heavier ranking model to those candidates. This balances latency and quality.
+1. **Parse** (`query_parser.py`): normalise spelling and units ("t-shirt"→"tshirt", "43 inches"→"43inch").
+   Then extract the budget, the product-type intent and the search terms.
+   - Budgets are read only from explicit phrasing: *under/below/within X*, *between X and Y*,
+     *around X* (±20%), *above X*, or amounts carrying ₹/Rs/INR or a k/thousand/lakh suffix. A bare
+     number is never a price, so "RTX 4060", "i5 12th gen" and "50 inch" are not budgets.
+   - Intent: the product type named **last** wins ("gaming laptop"→laptop, "laptop bag"→bag). If the
+     query names one of that type's accessory terms ("laptop stand", "mobile holder"), the intent is
+     dropped, because the shopper wants the accessory.
+2. **Hard filters**: budget and the UI's department, max price and min rating filters. Listings with no
+   price never enter the catalog, so budgets are always checkable.
+3. **Candidate pool** = BM25 top 300 ∪ FAISS top 300 (filter-restricted with an ID selector) ∪ products
+   matching the intent (up to 4,000).
+4. **Relevance** ∈ [0, 1]:
+   - keyword coverage = idf-weighted share of query terms in the listing. An intent match satisfies the
+     intent's own word, because phone listings rarely say "phone".
+   - semantic = cosine similarity mapped linearly from [0.20, 0.70] onto [0, 1]
+   - relevance = 0.55·semantic + 0.45·coverage (keyword-only mode: coverage)
+   - products of the wrong type are multiplied by 0.5 when the pool contains the right type
+   - candidates below 0.12 are dropped, so an unanswerable query returns nothing rather than noise
+5. **Score** = 0.62·relevance + 0.14·quality + 0.10·popularity + 0.04·discount + 0.10·profile
+   - quality: Bayesian-averaged rating `(n·r + 50·4.0)/(n + 50)`, scaled from 3–5★ onto [0, 1]. A 4.8★
+     product with 6 ratings ranks below a 4.5★ product with 5,000.
+   - popularity: `log(1+n)/log(1+100,000)`
+   - profile: keyword affinity (e.g. "rtx", "144hz" for gamers; saturates at 2 matches), averaged with
+     *cheapness* (share of relevant results that cost more) for price-sensitive profiles or "cheap/budget" queries
+   - ties break on rating count, then ASIN, identically in both languages
+6. **De-duplicate**: colour and size variants are collapsed by their leading title words outside
+   brackets, and by the review pool Amazon shares across variants (same brand, rating count and rating).
+7. **Explain** (`explainer.py`): one sentence per signal that cleared a threshold.
 
-## Why Personalization?
-Different users have different needs and priorities (e.g., gamers favor GPUs and refresh rates, students value portability and battery life). Personalization applies lightweight boosts to better match candidate ordering to user preferences.
+All weights and rules live in `config/engine.json`, shared by both engines.
 
-## Why LLM Explanations?
-LLM-based explanations turn model signals into human-readable rationales that improve trust and interpretability. They summarize why a product matched the query and highlight features relevant to the user's intent.
+## Similar items
 
-## Extensions and Future Work
-- Learning-to-rank: replace heuristic scoring with a supervised model trained on interaction logs (clicks, purchases, dwell time). Popular choices: LambdaMART, LightGBM Ranker, XGBoost Ranker.
-- Collaborative filtering: augment content signals with user-item interaction embeddings.
-- Online evaluation: A/B tests and interleaving for live metric monitoring.
+Python: FAISS nearest neighbours of the product's own embedding. JavaScript fallback: BM25 using the
+product's title as the query. Both re-rank with
+`0.75·similarity + 0.10·same sub-category + 0.10·quality + 0.05·popularity` and collapse variants.
 
-## Reviewer Q&A (short answers)
+## Why these choices
 
-Q: Why use FAISS instead of SQL?
-A: SQL is optimized for structured queries and exact matching over relational data. FAISS is designed for high-dimensional nearest-neighbor search and is much faster and more accurate for embedding-based semantic search.
+| Decision | Reason |
+|---|---|
+| Hybrid (dense + BM25) instead of dense only | Evaluation: hybrid P@10 0.969 vs dense-only 0.875. Dense-only also returned 8 over-budget results across the query set. |
+| Rule-based query parsing, not an LLM | Budgets and product types must be exact, testable and free per query. An LLM adds latency, cost and failure modes for a deterministic task. |
+| Deterministic explanations, not generated text | They are faithful by construction. A generated explanation could cite reasons the ranker never used. |
+| FAISS `IndexFlatIP` (exact search) | At 34k × 384 dims exact search takes milliseconds. An approximate index (IVF/HNSW) only pays off at millions of items. |
+| float16 embeddings + manifest with catalog SHA-256 | Halves memory and disk. The hash makes a stale index impossible to serve silently. The previous version served a 309-vector index against a 314-row catalog, which shifted every result. |
+| Duplicate keyword engine in JS | Lets the Vercel deployment work with no Python host. Drift is prevented by shared config, shared fixtures and a cross-language parity test. |
+| all-MiniLM-L6-v2 | 384 dims, ~90 MB, CPU-friendly (~115 products/s to encode, ~20 ms per query). |
 
-Q: Why not rank all products directly?
-A: Ranking all products per query is costly. Retrieval narrows candidates to a manageable set, enabling more complex ranking features without excessive latency.
+## Operational behaviour
 
-Q: Why embeddings?
-A: They capture semantic meaning and allow generalization beyond keyword overlap.
+- The API loads the engine in a background thread. `/api/health` answers at once, while `/api/ready` and
+  `/api/recommend` return 503 with `Retry-After` until the engine is loaded (~35 s).
+- The web app falls back to the keyword engine when the API is unconfigured, unreachable, times out
+  (8 s) or returns 5xx/429, and the response carries an `engine.notice` that the UI displays. API 4xx
+  validation errors are passed through, not masked.
+- If the embedding model cannot load, the API degrades to keyword mode (`ALLOW_LEXICAL_FALLBACK`)
+  instead of failing.
+- Inputs are validated at both layers: query ≤ 200 chars, `top_k` ≤ 50, known profile and department,
+  and sane price and rating ranges. Unknown fields are rejected.
+- Errors never echo internals to clients. Every API response carries `X-Request-ID`.
 
-Q: Why personalization?
-A: It tailors recommendations to user preferences, increasing relevance and satisfaction.
+## Future work
 
-Q: What would you improve next?
-A: Incorporate learning-to-rank, collaborative filtering, implicit feedback, and an online evaluation setup.
+- Learning-to-rank (e.g. LightGBM LambdaMART) once click or purchase feedback exists. The per-signal
+  contributions already returned are natural features.
+- Behavioural personalisation and collaborative filtering, which need user events and a persistent store.
+- Human-judged relevance labels and online A/B evaluation.
+- A refreshed catalog from a live product feed, with stock and current prices.

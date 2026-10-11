@@ -1,0 +1,3 @@
+# Optional Streamlit analyst console (app.py).
+-r requirements.txt
+streamlit>=1.50,<2

@@ -1,20 +1,19 @@
-# Exclude local Python scripts and ML environment from Vercel build
-app.py
-requirements.txt
-run_pipeline.py
-api_server.py
-validate_dataset.py
-validate_keywords.py
-validate_missing.py
-test_load.py
-tests/
-results/
-scripts/
-logs/
+# Only the Next.js app is deployed to Vercel; the Python API is deployed separately.
 venv/
-__pycache__/
-*.pyc
-
-# Raw data
+**/__pycache__/
+*.py
+requirements*.txt
+pyproject.toml
+Dockerfile*
+docker-compose.yml
+scripts/
+src/
+tests/
+eval/
+results/
+models/
+logs/
+assets/
+docs/
 data/raw/
 data/processed/unified_dataset.csv

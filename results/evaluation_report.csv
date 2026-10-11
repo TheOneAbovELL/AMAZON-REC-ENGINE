@@ -1,4 +1,4 @@
-model,precision_at_5,recall_at_5,ndcg_at_5
-Baseline Search,0.24,1.0,1.0
-Semantic Search,0.24,1.0,1.0
-Personalized Search,0.24,1.0,1.0
+system,precision@10,ndcg@10,mrr,hit_rate,over_budget_results,p50_ms,p95_ms
+dense-only,0.875,0.9526,0.9542,1.0,8,51.2719,71.1918
+lexical,0.8812,0.9408,0.8958,1.0,0,21.1108,92.961
+hybrid,0.9688,0.9962,1.0,1.0,0,40.7115,107.3601

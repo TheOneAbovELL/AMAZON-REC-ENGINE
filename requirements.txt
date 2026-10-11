@@ -1,9 +1,9 @@
-pandas
-numpy
-scikit-learn
-sentence-transformers
-faiss-cpu
-streamlit
-google-generativeai
-matplotlib
-seaborn
+# Runtime dependencies of the Python API (api_server.py) and offline build scripts.
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+pydantic>=2.7,<3
+numpy>=1.26,<3
+scipy>=1.11,<2
+pandas>=2.1,<4
+faiss-cpu>=1.8,<2
+sentence-transformers>=3.0,<6
